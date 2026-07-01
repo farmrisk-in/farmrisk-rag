@@ -1,0 +1,138 @@
+[
+  {
+    "season": "Kharif",
+    "source": "ICAR.pdf",
+    "state": "Assam",
+    "category": "Oilseed Crops",
+    "crop": "Maize",
+    "page": 42,
+    "content": "Maize Variety Bio 9544",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "ICAR.pdf",
+    "state": "Gujarat",
+    "category": "Poultry",
+    "crop": "Groundnut",
+    "page": 65,
+    "content": "SOUTH SAURASHTRA",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "ICAR.pdf",
+    "state": "Gujarat",
+    "category": "Poultry",
+    "crop": "Soybean",
+    "page": 66,
+    "content": "Cotton (Bt & Desi) Groundnut Demo Plot",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "ICAR.pdf",
+    "state": "Gujarat",
+    "category": "Fruit & Vegetable Crops",
+    "crop": "Banana",
+    "page": 71,
+    "content": "Finger Millet, Little Millet and Foxtail Millet",
+    "validation_errors": [
+      "Content too short (47 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "ICAR.pdf",
+    "state": "Maharashtra",
+    "category": "Fruit Crops",
+    "crop": "Pomegranate",
+    "page": 172,
+    "content": "Fruit cover in Pomegranate",
+    "validation_errors": [
+      "Content too short (26 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "ICAR.pdf",
+    "state": "Manipur",
+    "category": "Cereal Crops",
+    "crop": "Maize",
+    "page": 184,
+    "content": "Varietal demonstration in paddy",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "ICAR.pdf",
+    "state": "Mizoram",
+    "category": "Vegetable Crops",
+    "crop": "Pumpkin",
+    "page": 191,
+    "content": "Carrot",
+    "validation_errors": [
+      "Content too short (6 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Ginger",
+    "page": 298,
+    "content": "25 g Aniseed 15 g",
+    "zone": "Zone-Vii",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Onion",
+    "page": 298,
+    "content": "50 g Clove 6 nos.",
+    "zone": "Zone-Vii",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Garlic",
+    "page": 298,
+    "content": "10 g Tamarind pulp 50 g Red chilli 15 g",
+    "zone": "Zone-Vii",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Mustard",
+    "page": 298,
+    "content": "50 g",
+    "zone": "Zone-Vii",
+    "validation_errors": [
+      "Content too short (4 chars)"
+    ]
+  }
+]
