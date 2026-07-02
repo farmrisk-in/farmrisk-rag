@@ -17,7 +17,7 @@ location_resolver = NominatimLocationResolver()
 weather_service = WeatherService()
 season_resolver = MonthSeasonResolver()
 
-# Try initializing vector retriever, fallback if Pinecone config is missing/offline
+# Try initializing vector retriever, fallback if Supabase config is missing/offline
 try:
     retriever = AdvisoryRetriever()
 except Exception as e:
@@ -31,7 +31,7 @@ translation_service = TranslationService()
 async def generate_crop_advisory(request: AdvisoryRequest):
     """
     Generate agrometeorological advisory for a given coordinate grid location and crop.
-    Retrieves weather context, performs Pinecone RAG search, uses Gemini Flash, and translates.
+    Retrieves weather context, performs Supabase RAG search, uses Gemini Flash, and translates.
     """
     logger.info(
         f"Processing advisory request: crop={request.crop}, lat={request.latitude}, lon={request.longitude}, lang={request.language}"
@@ -62,7 +62,7 @@ async def generate_crop_advisory(request: AdvisoryRequest):
         else:
             logger.info("Advisory spatial cache MISS. Initiating RAG pipeline.")
             
-            # Step 5: Retrieve relevant RAG guidelines from Pinecone
+            # Step 5: Retrieve relevant RAG guidelines from Supabase
             rag_context = []
             if retriever:
                 # Query vector database
@@ -72,7 +72,7 @@ async def generate_crop_advisory(request: AdvisoryRequest):
                     season=season
                 )
             
-            logger.info(f"Retrieved {len(rag_context)} documents from Pinecone.")
+            logger.info(f"Retrieved {len(rag_context)} documents from Supabase.")
             
             # Step 6: Generate crop advisory via Gemini Flash
             advisory_obj = await advisory_engine.generate_advisory(
