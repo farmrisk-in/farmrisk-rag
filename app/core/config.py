@@ -12,9 +12,10 @@ class Settings:
     DEBUG: bool = os.getenv("DEBUG", "true").lower() in ("true", "1", "yes")
     APP_ENV: str = os.getenv("APP_ENV", "development")
     
-    # Pinecone
-    PINECONE_API_KEY: str = os.getenv("PINECONE_API_KEY", "")
-    PINECONE_INDEX_NAME: str = os.getenv("PINECONE_INDEX_NAME", "farmrisk-advisories")
+    # Supabase
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
+    SUPABASE_ANON_KEY: str = os.getenv("SUPABASE_ANON_KEY", "")
+    SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     
     # LLM Providers Configuration
     LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "gemini")

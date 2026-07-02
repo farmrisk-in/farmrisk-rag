@@ -23,7 +23,7 @@ class AdvisoryEngine:
     ) -> AdvisoryResponse:
         """Generate a two-paragraph plain-text agrometeorological advisory using LLMProvider and RAG context."""
         
-        # Format the context from Pinecone
+        # Format the context from Supabase pgvector
         formatted_context = ""
         for idx, item in enumerate(rag_context, start=1):
             formatted_context += f"Source [{item['source']} page {item['page']}]:\n{item['content']}\n\n"

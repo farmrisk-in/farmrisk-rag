@@ -135,7 +135,7 @@ class NominatimLocationResolver:
             return LocationDetail(
                 village="Unknown Village",
                 district="Unknown District",
-                state="Rajasthan",  # Safe fallback for Pinecone query
+                state="Rajasthan",  # Safe fallback for Supabase pgvector query
                 latitude=latitude,
                 longitude=longitude
             )
