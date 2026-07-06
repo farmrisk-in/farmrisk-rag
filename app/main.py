@@ -4,17 +4,14 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.logging import logger
 from app.api.location import router as location_router, resolver as location_resolver
-from app.api.advisory import router as advisory_router, weather_service
+from app.api.advisory import router as advisory_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup actions
     logger.info(f"Starting FarmRisk Backend in {settings.APP_ENV} mode...")
     yield
-    # Shutdown actions
     logger.info("Shutting down FarmRisk Backend...")
     await location_resolver.close()
-    await weather_service.close()
     logger.info("FarmRisk Backend shutdown complete.")
 
 app = FastAPI(

@@ -39,4 +39,15 @@ class Settings:
     LOG_FORMAT: str = os.getenv("LOG_FORMAT", "TEXT")
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 
+    # Advisory Context Builder & RAG Thresholds
+    RAG_TOP_K: int = int(os.getenv("RAG_TOP_K", "5"))
+    RAINY_DAY_THRESHOLD_MM: float = float(os.getenv("RAINY_DAY_THRESHOLD_MM", "2.5"))
+    HEAVY_RAIN_THRESHOLD_MM: float = float(os.getenv("HEAVY_RAIN_THRESHOLD_MM", "35.0"))
+    SOIL_MOISTURE_TREND_TOLERANCE: float = float(os.getenv("SOIL_MOISTURE_TREND_TOLERANCE", "5.0"))
+    ADVISORY_MIN_WORDS: int = int(os.getenv("ADVISORY_MIN_WORDS", "120"))
+    ADVISORY_MAX_WORDS: int = int(os.getenv("ADVISORY_MAX_WORDS", "180"))
+
+    # Development only — NEVER enable in production
+    ENABLE_MOCK_ADVISORY: bool = os.getenv("ENABLE_MOCK_ADVISORY", "false").lower() == "true"
+
 settings = Settings()
