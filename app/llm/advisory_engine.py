@@ -49,17 +49,17 @@ class AdvisoryEngine:
         """
         Generate a two-paragraph plain-text advisory.
 
+        If rag_chunks is empty, generation continues with a weather-only prompt
+        (no ICAR recommendations invented). This avoids a hard 503 failure for
+        general/unknown crops where the RAG index has no matching chunks.
+
         Raises:
-            InsufficientKnowledgeError: if rag_chunks is empty (no ICAR context).
             AdvisoryGenerationError: if all LLM providers fail on every attempt.
         """
         if not rag_chunks:
-            logger.error(
-                "Advisory generation refused: no ICAR RAG chunks retrieved. "
-                "Cannot generate grounded agricultural recommendations."
-            )
-            raise InsufficientKnowledgeError(
-                "Insufficient agricultural knowledge was retrieved to generate a grounded advisory."
+            logger.warning(
+                "No ICAR RAG chunks retrieved. Generating weather-only advisory "
+                "without crop-specific ICAR recommendations."
             )
 
         # Build the base prompt once — preserved for all retry correction prompts
@@ -123,6 +123,7 @@ class AdvisoryEngine:
         av = ctx.availability
 
         # ---- Forecast section ----
+        wa = ctx.weather_api_summary
         if ctx.forecast_summary:
             fs = ctx.forecast_summary
             start_fmt = self._fmt_date(fs.forecast_start_date)
@@ -138,13 +139,14 @@ class AdvisoryEngine:
                 f"Avg min/max temp : {fs.average_min_temperature_c:.1f} °C / {fs.average_max_temperature_c:.1f} °C"
             )
         else:
-            start_fmt, end_fmt = "N/A", "N/A"
+            # Fall back to weather API daily dates for the "From ... to ..." prefix
+            start_fmt = self._fmt_date(wa.api_start_date) if wa.api_start_date else ""
+            end_fmt = self._fmt_date(wa.api_end_date) if wa.api_end_date else ""
             forecast_section = "CORRECTED FORECAST SUMMARY: Not available."
 
         # ---- Weather API secondary ----
-        wa = ctx.weather_api_summary
         api_section = (
-            f"WEATHER API DAILY (Secondary reference only — do not double-count rainfall)\n"
+            f"WEATHER API DAILY ({wa.api_start_date} to {wa.api_end_date})\n"
             f"Total rainfall: {wa.api_total_rainfall_mm:.1f} mm | "
             f"Temp range: {wa.api_min_temp_c:.1f} °C – {wa.api_max_temp_c:.1f} °C"
         )
@@ -179,7 +181,7 @@ class AdvisoryEngine:
                 f"- Do NOT infer soil-condition categories from percentile or w_frac values."
             )
         else:
-            sm_section = "SOIL MOISTURE SUMMARY: Not available for this location."
+            sm_section = "SOIL MOISTURE: No data available. Do NOT mention soil moisture at all in the advisory."
 
         # ---- Lightning section ----
         if ctx.lightning_summary and av.lightning_available:
@@ -199,17 +201,32 @@ class AdvisoryEngine:
 
         # ---- RAG chunks ----
         rag_lines = []
-        for i, chunk in enumerate(rag_chunks, 1):
-            rag_lines.append(
-                f"[Chunk {i}]\n"
-                f"Source    : {chunk.get('source', 'ICAR')}\n"
-                f"Page      : {chunk.get('page', 'N/A')}\n"
-                f"Crop      : {chunk.get('crop', 'N/A')}\n"
-                f"Season    : {chunk.get('season', 'N/A')}\n"
-                f"Similarity: {round(chunk.get('score') or 0, 3)}\n"
-                f"Content   :\n{chunk.get('content', '')}\n"
+        if rag_chunks:
+            for i, chunk in enumerate(rag_chunks, 1):
+                rag_lines.append(
+                    f"[Chunk {i}]\n"
+                    f"Source    : {chunk.get('source', 'ICAR')}\n"
+                    f"Page      : {chunk.get('page', 'N/A')}\n"
+                    f"Crop      : {chunk.get('crop', 'N/A')}\n"
+                    f"Season    : {chunk.get('season', 'N/A')}\n"
+                    f"Similarity: {round(chunk.get('score') or 0, 3)}\n"
+                    f"Content   :\n{chunk.get('content', '')}\n"
+                )
+            rag_section = "\n".join(rag_lines)
+            rag_instruction = (
+                "Provide practical recommendations based ONLY on retrieved ICAR knowledge and forecast conditions.\n"
+                "- Cover where relevant: irrigation, sowing/transplanting, fertilizer, pesticide, drainage, pest/disease, harvesting.\n"
+                "- Do NOT invent recommendations not supported by retrieved ICAR context."
             )
-        rag_section = "\n".join(rag_lines)
+        else:
+            rag_section = "[No ICAR knowledge retrieved]"
+            rag_instruction = (
+                "No crop-specific ICAR data is available. "
+                "Generate the advisory based solely on the observed weather and forecast data above. "
+                "Do NOT mention ICAR, do NOT mention that knowledge is unavailable, do NOT mention RAG. "
+                "Do NOT invent any pesticide names, fertilizer rates, or specific sowing/harvesting dates. "
+                "Instead, provide practical general weather-based guidance for farmers and end with the outlook sentence."
+            )
 
         prompt = f"""You are an expert agrometeorologist at FarmRisk. Generate a professional 10-Day Crop-Specific Advisory Summary.
 
@@ -247,13 +264,22 @@ Condition   : {cw.weather_condition}
 {rag_section}
 
 === OUTPUT INSTRUCTIONS ===
-Generate exactly TWO paragraphs of plain text.
-Total word count MUST be between {settings.ADVISORY_MIN_WORDS} and {settings.ADVISORY_MAX_WORDS} words.
+Generate exactly THREE paragraphs of plain text, separated by a blank line.
+Total word count MUST be between {settings.ADVISORY_MIN_WORDS} and {settings.ADVISORY_MAX_WORDS} words. Write in full, detailed sentences — do NOT be brief.
 Use Indian date format DD/MM/YYYY for any dates.
 Highlight important words/numbers with single asterisks: *word* or *number*.
 
-ALLOWED single-asterisk inline emphasis examples:
-  *Groundnut*    *131.1 mm*    *24.1 °C*    *moderate*    *increasing*
+FORBIDDEN PHRASES — never use these:
+  "Based on the retrieved ICAR knowledge"
+  "Based on ICAR knowledge"
+  "According to ICAR"
+  "ICAR recommends"
+  "No ICAR"
+  "RAG"
+  "knowledge base"
+  "retrieved knowledge"
+  "not available"
+  "unavailable"
 
 NOT ALLOWED — reject these formatting elements:
   Markdown headings (#, ##, ###)
@@ -264,20 +290,32 @@ NOT ALLOWED — reject these formatting elements:
   Double-asterisk bold (**word**)
   Double-underscore bold (__word__)
 
-PARAGRAPH 1 (Weather & Crop Impact):
-- MUST begin exactly with: "From {start_fmt} to {end_fmt}, "
-- Describe forecast period, corrected total rainfall, rainfall pattern, rainfall risks.
-- Describe corrected temperature range and crop impact.
-- Include soil moisture trend using ONLY start → end percentile values (if available).
-- Include lightning risk only if agriculturally relevant.
-- Do NOT include any recommendations, actions, or instructions in Paragraph 1.
-- Forbidden in Paragraph 1: "farmers should", "farmers must", "apply", "spray", "sow", "harvest", "irrigate", "ensure drainage".
+ALLOWED single-asterisk inline emphasis examples:
+  *Groundnut*    *131.1 mm*    *24.1 °C*    *moderate*    *increasing*
 
-PARAGRAPH 2 (Crop Advisory):
-- Provide practical recommendations based ONLY on retrieved ICAR knowledge and forecast conditions.
-- Cover where relevant: irrigation, sowing/transplanting, fertilizer, pesticide, drainage, pest/disease, harvesting.
-- Do NOT invent recommendations not supported by retrieved ICAR context.
-- Do NOT make claims about data marked as "Not available".
+PARAGRAPH 1 — Detailed Weather & Climate Analysis (70–120 words):
+- MUST begin exactly with: "From {start_fmt} to {end_fmt}, "
+- Cover ALL of the following in detail:
+  • Corrected total rainfall, rainy day count, max single-day rainfall, and rainfall pattern classification
+  • Temperature range (min/max), average temperatures, and heat stress implications for crops
+  • Current observed conditions: humidity, wind speed, wind gusts, cloud cover, precipitation, weather condition
+  • Lightning risk score and category with agricultural implication
+  • Soil moisture trend (start → end percentile) only if data is available — otherwise skip silently
+- Write in flowing sentences, not a list.
+- Do NOT include any recommendations or instructions in Paragraph 1.
+
+PARAGRAPH 2 — Crop-Specific Advisory & Field Management (80–140 words):
+- {rag_instruction}
+- Cover ALL relevant aspects: sowing/transplanting timing, irrigation scheduling, fertilizer application (type, rate, timing), pest and disease watch, drainage management, field preparation.
+- Mention the specific crop stage and tailor recommendations to current growth phase.
+- Reference specific weather risks (excess rain, heat stress, wind) and how farmers should respond.
+- Write detailed, actionable sentences — do NOT be vague.
+- Do NOT make claims about data sources.
+
+PARAGRAPH 3 — Outlook & Risk Summary (40–60 words):
+- Summarise the overall risk level for the coming period.
+- Mention the single biggest weather risk farmers should watch.
+- Advise farmers on monitoring frequency or key action to take this week.
 - MUST end with exactly one of:
   "Overall, the agricultural outlook for this period is Favorable."
   "Overall, the agricultural outlook for this period is Cautionary."
@@ -285,9 +323,8 @@ PARAGRAPH 2 (Crop Advisory):
 
 HALLUCINATION RULES:
 - Use ONLY the numerical values provided above. Do not invent any values.
-- If a data source is marked "Not available", make no claims about it.
-- Do not invent crop stage, pesticide names, fertilizer rates, or sowing/harvesting dates.
-- Agricultural recommendations must originate ONLY from the retrieved ICAR knowledge chunks above.
+- Do not invent crop stage, pesticide names, fertilizer rates, or sowing/harvesting dates not present in the knowledge chunks.
+- If soil moisture data is absent, skip it entirely — do not say it is unavailable.
 """
         return prompt
 
@@ -329,10 +366,10 @@ HALLUCINATION RULES:
         text = text.strip()
         paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
 
-        # ---- Structure: exactly 2 paragraphs ----
-        if len(paragraphs) != 2:
+        # ---- Structure: exactly 3 paragraphs ----
+        if len(paragraphs) != 3:
             errors.append(
-                f"Expected exactly 2 paragraphs separated by a blank line, got {len(paragraphs)}."
+                f"Expected exactly 3 paragraphs separated by a blank line, got {len(paragraphs)}."
             )
 
         # ---- Word count ----
@@ -343,23 +380,30 @@ HALLUCINATION RULES:
             errors.append(f"Too long: {word_count} words (max {settings.ADVISORY_MAX_WORDS}).")
 
         # ---- Paragraph 1 date prefix ----
-        if paragraphs and context.forecast_summary:
-            start_dd = self._fmt_date(context.forecast_summary.forecast_start_date)
-            end_dd = self._fmt_date(context.forecast_summary.forecast_end_date)
-            if not paragraphs[0].startswith(f"From {start_dd}"):
+        if paragraphs:
+            if context.forecast_summary:
+                start_dd = self._fmt_date(context.forecast_summary.forecast_start_date)
+                end_dd = self._fmt_date(context.forecast_summary.forecast_end_date)
+            elif context.weather_api_summary.api_start_date:
+                start_dd = self._fmt_date(context.weather_api_summary.api_start_date)
+                end_dd = self._fmt_date(context.weather_api_summary.api_end_date)
+            else:
+                start_dd = end_dd = None
+
+            if start_dd and not paragraphs[0].startswith(f"From {start_dd}"):
                 errors.append(
-                    f"Paragraph 1 must start with 'From {start_dd} to {end_dd},'."
+                    f"Paragraph 1 must start with 'From {start_dd} to {end_dd},'. "
                 )
 
-        # ---- Paragraph 2 outlook ending ----
+        # ---- Last paragraph (Paragraph 3) must end with outlook sentence ----
         valid_endings = [
             "Overall, the agricultural outlook for this period is Favorable.",
             "Overall, the agricultural outlook for this period is Cautionary.",
             "Overall, the agricultural outlook for this period is Unfavorable.",
         ]
-        if len(paragraphs) >= 2:
+        if paragraphs:
             if not any(paragraphs[-1].endswith(e) for e in valid_endings):
-                errors.append("Paragraph 2 must end with a valid outlook sentence.")
+                errors.append("Last paragraph must end with a valid outlook sentence.")
 
         # ---- Paragraph 1 must not contain recommendation language ----
         if paragraphs:
@@ -528,11 +572,16 @@ HALLUCINATION RULES:
 
     @staticmethod
     def _fmt_date(date_str: str) -> str:
+        """Convert any date string (YYYY-MM-DD or ISO datetime) to DD/MM/YYYY."""
+        if not date_str:
+            return ""
+        # Normalise: take first 10 chars to handle ISO like 2026-07-07T00:00:00.000Z
+        clean = date_str[:10]
         try:
-            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            dt = datetime.strptime(clean, "%Y-%m-%d")
             return dt.strftime("%d/%m/%Y")
         except Exception:
-            return date_str
+            return clean
 
     def _get_mock_advisory(self, context: AdvisoryContext) -> AdvisoryResponse:
         """

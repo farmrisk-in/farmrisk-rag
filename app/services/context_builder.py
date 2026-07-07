@@ -71,15 +71,18 @@ class AdvisoryContextBuilder:
     # ------------------------------------------------------------------
 
     def _build_availability(self, req: AIAdvisoryRequest) -> AvailabilityFlags:
+        fd = req.forecastData
         return AvailabilityFlags(
             weather_available=True,  # weather is always present if we reach here
             corrected_forecast_available=(
-                req.forecastData.forecast.success
-                and len(req.forecastData.forecast.forecast) > 0
+                fd is not None
+                and fd.forecast.success
+                and len(fd.forecast.forecast) > 0
             ),
             soil_moisture_available=(
-                req.forecastData.soil_moisture.success
-                and len(req.forecastData.soil_moisture.soil_moisture) > 0
+                fd is not None
+                and fd.soil_moisture.success
+                and len(fd.soil_moisture.soil_moisture) > 0
             ),
             lightning_available=req.weatherData.lightning is not None,
             calendar_available=(
@@ -254,6 +257,8 @@ class AdvisoryContextBuilder:
     # ------------------------------------------------------------------
 
     def _build_forecast_summary(self, req: AIAdvisoryRequest) -> Optional[ForecastSummary]:
+        if req.forecastData is None:
+            return None
         raw_days = req.forecastData.forecast.forecast
         if not raw_days:
             return None
@@ -319,7 +324,11 @@ class AdvisoryContextBuilder:
         total = round(sum(d.precipitation_sum), 2) if d.precipitation_sum else 0.0
         min_t = round(min(d.temperature_2m_min), 1) if d.temperature_2m_min else 0.0
         max_t = round(max(d.temperature_2m_max), 1) if d.temperature_2m_max else 0.0
+        start_date = d.time[0] if d.time else ""
+        end_date = d.time[-1] if d.time else ""
         return WeatherApiSummary(
+            api_start_date=start_date,
+            api_end_date=end_date,
             api_total_rainfall_mm=total,
             api_min_temp_c=min_t,
             api_max_temp_c=max_t,
@@ -343,6 +352,8 @@ class AdvisoryContextBuilder:
     # ------------------------------------------------------------------
 
     def _build_soil_moisture_summary(self, req: AIAdvisoryRequest) -> Optional[SoilMoistureSummary]:
+        if req.forecastData is None:
+            return None
         records = req.forecastData.soil_moisture.soil_moisture
         if not records:
             return None
@@ -376,7 +387,7 @@ class AdvisoryContextBuilder:
         else:
             trend = "stable"
 
-        sm_block = req.forecastData.soil_moisture
+        sm_block = req.forecastData.soil_moisture  # type: ignore[union-attr]
         return SoilMoistureSummary(
             latest_w_frac=round(latest_row.w_frac, 4),
             latest_sm_percentile=round(latest_row.sm_percentile, 2),

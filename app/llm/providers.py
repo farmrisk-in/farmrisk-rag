@@ -60,72 +60,84 @@ class GeminiProvider:
     async def generate_json(self, prompt: str, schema: Type[T], temperature: float = 0.2) -> T:
         if not self.enabled:
             raise ValueError("Gemini API key not configured or provider disabled.")
-            
+
         attempts = 3
-        backoffs = [1.0, 2.0, 4.0]
-        
+        backoffs = [2.0, 4.0, 8.0]
+        LLM_TIMEOUT = 30  # seconds
+
         for attempt in range(1, attempts + 1):
             try:
-                logger.info(f"Gemini attempt {attempt}/{attempts}")
-                response = self.client.models.generate_content(
-                    model=settings.GEMINI_MODEL,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        response_schema=schema,
-                        temperature=temperature,
-                    )
+                logger.info(f"Gemini attempt {attempt}/{attempts} (json generation)")
+                response = await asyncio.wait_for(
+                    self.client.aio.models.generate_content(
+                        model=settings.GEMINI_MODEL,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=schema,
+                            temperature=temperature,
+                        ),
+                    ),
+                    timeout=LLM_TIMEOUT,
                 )
                 data = json.loads(response.text)
                 return schema.model_validate(data)
+            except asyncio.TimeoutError:
+                logger.warning(f"Gemini attempt {attempt} timed out after {LLM_TIMEOUT}s")
+                e = asyncio.TimeoutError(f"Gemini timed out after {LLM_TIMEOUT}s")
+                if attempt < attempts:
+                    await asyncio.sleep(backoffs[attempt - 1])
+                else:
+                    raise e
             except Exception as e:
                 logger.warning(f"Gemini attempt {attempt} failed: {e}")
-                
-                # Check if this is a transient error and we have attempts remaining
                 if attempt < attempts and is_transient_error(e):
                     wait_time = backoffs[attempt - 1]
-                    logger.info(f"Gemini retrying after transient error {e}. Waiting {wait_time}s...")
+                    logger.info(f"Gemini retrying after transient error. Waiting {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
                     if attempt == attempts:
                         logger.error("Gemini retries exhausted.")
-                        if is_transient_error(e):
-                            wait_time = backoffs[attempt - 1]
-                            logger.info(f"Waiting {wait_time}s after final failure...")
-                            await asyncio.sleep(wait_time)
                     raise e
 
     async def generate_text(self, prompt: str, temperature: float = 0.2) -> str:
         if not self.enabled:
             raise ValueError("Gemini API key not configured or provider disabled.")
-            
+
         attempts = 3
-        backoffs = [1.0, 2.0, 4.0]
-        
+        backoffs = [2.0, 4.0, 8.0]
+        LLM_TIMEOUT = 30  # seconds — fail fast so Groq fallback kicks in
+
         for attempt in range(1, attempts + 1):
             try:
                 logger.info(f"Gemini attempt {attempt}/{attempts} (text generation)")
-                response = self.client.models.generate_content(
-                    model=settings.GEMINI_MODEL,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        temperature=temperature,
-                    )
+                response = await asyncio.wait_for(
+                    self.client.aio.models.generate_content(
+                        model=settings.GEMINI_MODEL,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            temperature=temperature,
+                        ),
+                    ),
+                    timeout=LLM_TIMEOUT,
                 )
                 return response.text
+            except asyncio.TimeoutError:
+                logger.warning(f"Gemini attempt {attempt} timed out after {LLM_TIMEOUT}s")
+                e = asyncio.TimeoutError(f"Gemini timed out after {LLM_TIMEOUT}s")
+                if attempt < attempts:
+                    await asyncio.sleep(backoffs[attempt - 1])
+                else:
+                    raise e
             except Exception as e:
                 logger.warning(f"Gemini text attempt {attempt} failed: {e}")
                 if attempt < attempts and is_transient_error(e):
                     wait_time = backoffs[attempt - 1]
-                    logger.info(f"Gemini retrying after transient error {e}. Waiting {wait_time}s...")
+                    logger.info(f"Gemini retrying after transient error. Waiting {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
                     if attempt == attempts:
                         logger.error("Gemini retries exhausted.")
-                        if is_transient_error(e):
-                            wait_time = backoffs[attempt - 1]
-                            logger.info(f"Waiting {wait_time}s after final failure...")
-                            await asyncio.sleep(wait_time)
                     raise e
 
 
@@ -151,6 +163,7 @@ class GroqProvider:
             model=settings.GROQ_MODEL,
             response_format={"type": "json_object"},
             temperature=temperature,
+            max_tokens=2048,
         )
         content = chat_completion.choices[0].message.content
         data = json.loads(content)
@@ -159,7 +172,7 @@ class GroqProvider:
     async def generate_text(self, prompt: str, temperature: float = 0.2) -> str:
         if not self.enabled:
             raise ValueError("Groq API key not configured or provider disabled.")
-            
+
         chat_completion = await self.client.chat.completions.create(
             messages=[
                 {
@@ -169,6 +182,7 @@ class GroqProvider:
             ],
             model=settings.GROQ_MODEL,
             temperature=temperature,
+            max_tokens=1024,
         )
         return chat_completion.choices[0].message.content
 
