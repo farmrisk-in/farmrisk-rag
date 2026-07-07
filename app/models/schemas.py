@@ -188,7 +188,7 @@ class AIAdvisoryRequest(BaseModel):
     cropId: str = Field(..., min_length=1)
     calendarData: CalendarDataInput
     weatherData: WeatherDataInput
-    forecastData: ForecastDataInput
+    forecastData: Optional[ForecastDataInput] = None
     language: str = Field(..., min_length=1)
 
 
@@ -244,6 +244,8 @@ class ForecastSummary(BaseModel):
 
 class WeatherApiSummary(BaseModel):
     source: str = "weather_api_daily"
+    api_start_date: str = ""        # YYYY-MM-DD, first date in daily.time
+    api_end_date: str = ""          # YYYY-MM-DD, last date in daily.time
     api_total_rainfall_mm: float
     api_min_temp_c: float
     api_max_temp_c: float

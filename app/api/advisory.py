@@ -99,10 +99,12 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
             logger.info("Advisory cache MISS. Running RAG pipeline.")
 
             # ------------------------------------------------------------
-            # Step 4: Build retrieval context
+            # Step 4: Build retrieval context (skipped for general crop)
             # ------------------------------------------------------------
+            is_general = request.cropId.lower().strip() == "general"
+
             ret_ctx = None
-            if context.forecast_summary or context.soil_moisture_summary:
+            if not is_general and (context.forecast_summary or context.soil_moisture_summary):
                 sm_avg = (
                     context.soil_moisture_summary.forecast_average_percentile
                     if context.soil_moisture_summary else 50.0
@@ -128,10 +130,12 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
                 )
 
             # ------------------------------------------------------------
-            # Step 5: RAG retrieval
+            # Step 5: RAG retrieval (skipped for general crop)
             # ------------------------------------------------------------
             rag_chunks = []
-            if retriever:
+            if is_general:
+                logger.info("General crop selected — skipping RAG, using direct LLM generation.")
+            elif retriever:
                 t_rag = time.perf_counter()
                 rag_chunks = retriever.retrieve(
                     crop=context.crop_context.crop_name,
@@ -189,12 +193,6 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
         logger.info(f"Advisory request complete in {total:.2f}s")
         return translated
 
-    except InsufficientKnowledgeError as e:
-        logger.error(f"Advisory refused — insufficient ICAR knowledge: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Insufficient agricultural knowledge was retrieved to generate a grounded advisory.",
-        )
     except AdvisoryGenerationError as e:
         logger.error(f"Advisory generation exhausted all providers: {e}")
         raise HTTPException(
