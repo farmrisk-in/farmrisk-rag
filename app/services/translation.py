@@ -16,7 +16,7 @@ class TranslationService:
 
     async def translate_advisory(self, advisory: AdvisoryResponse, target_language: str) -> TranslationResult:
         """Translate the values of the AdvisoryResponse into the target language."""
-        if not target_language or target_language.lower() == "english":
+        if not target_language or target_language.lower().strip() in ("en", "english"):
             return TranslationResult(
                 data=advisory.model_dump(),
                 translated=True,
