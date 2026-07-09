@@ -183,19 +183,11 @@ class AdvisoryEngine:
         else:
             sm_section = "SOIL MOISTURE: No data available. Do NOT mention soil moisture at all in the advisory."
 
-        # ---- Lightning section ----
-        if ctx.lightning_summary and av.lightning_available:
-            lg = ctx.lightning_summary
-            lg_section = f"LIGHTNING RISK\nScore: {lg.score:.1f} | Category: {lg.category}"
-        else:
-            lg_section = "LIGHTNING RISK: Not available."
-
         # ---- Availability flags ----
         avail_section = (
             f"SOURCE AVAILABILITY\n"
             f"Corrected forecast : {'Yes' if av.corrected_forecast_available else 'No'}\n"
             f"Soil moisture      : {'Yes' if av.soil_moisture_available else 'No'}\n"
-            f"Lightning          : {'Yes' if av.lightning_available else 'No'}\n"
             f"Crop calendar      : {'Yes' if av.calendar_available else 'No'}"
         )
 
@@ -228,6 +220,53 @@ class AdvisoryEngine:
                 "Instead, provide practical general weather-based guidance for farmers and end with the outlook sentence."
             )
 
+        # ---- General crop customization ----
+        is_general = ctx.crop_context.crop_id.lower().strip() == "general"
+        if is_general:
+            p_count_instruction = "Generate exactly ONE paragraph of plain text."
+            word_count_instruction = "Total word count MUST be between 110 and 150 words."
+            structure_instruction = (
+                "The single paragraph MUST:\n"
+                f"- Begin exactly with: \"From {start_fmt} to {end_fmt}, \"\n"
+                "- Explicitly include the location (village, district, state) and cover weather forecast, observed conditions (wind speed, wind gusts, humidity, cloud cover), temperature range, average minimum and maximum temperatures, rainfall (total, rainy days, peak intensity), and starting/ending soil moisture conditions (except lightning) in concise detail.\n"
+                "- Provide direct, highly actionable field management and crop care recommendations suitable for all crops (e.g. drainage, chemical spray/fertilizer postponement details, monitoring). Avoid any verbose or unnecessary filler sentences.\n"
+                "- End with exactly one of the outlook sentences:\n"
+                "  \"Overall, the agricultural outlook for this period is Favorable.\"\n"
+                "  \"Overall, the agricultural outlook for this period is Cautionary.\"\n"
+                "  \"Overall, the agricultural outlook for this period is Unfavorable.\""
+            )
+        else:
+            p_count_instruction = "Generate exactly THREE paragraphs of plain text, separated by a blank line."
+            word_count_instruction = f"Total word count MUST be between {settings.ADVISORY_MIN_WORDS} and {settings.ADVISORY_MAX_WORDS} words."
+            structure_instruction = (
+                f"PARAGRAPH 1 — Detailed Weather & Climate Analysis (70–120 words):\n"
+                f"- MUST begin exactly with: \"From {start_fmt} to {end_fmt}, \"\n"
+                f"- Cover ALL of the following in detail:\n"
+                f"  • Corrected total rainfall, rainy day count, max single-day rainfall, and rainfall pattern classification\n"
+                f"  • Temperature range (min/max), average temperatures, and heat stress implications for crops\n"
+                f"  • Current observed conditions: humidity, wind speed, wind gusts, cloud cover, precipitation, weather condition\n"
+                f"  • Soil moisture trend (start → end percentile) only if data is available — otherwise skip silently\n"
+                f"- Write in flowing sentences, not a list.\n"
+                f"- Do NOT include any recommendations or instructions in Paragraph 1.\n"
+                f"\n"
+                f"PARAGRAPH 2 — Crop-Specific Advisory & Field Management (80–140 words):\n"
+                f"- {rag_instruction}\n"
+                f"- Cover ALL relevant aspects: sowing/transplanting timing, irrigation scheduling, fertilizer application (type, rate, timing), pest and disease watch, drainage management, field preparation.\n"
+                f"- Mention the specific crop stage and tailor recommendations to current growth phase.\n"
+                f"- Reference specific weather risks (excess rain, heat stress, wind) and how farmers should respond.\n"
+                f"- Write detailed, actionable sentences — do NOT be vague.\n"
+                f"- Do NOT make claims about data sources.\n"
+                f"\n"
+                f"PARAGRAPH 3 — Outlook & Risk Summary (40–60 words):\n"
+                f"- Summarise the overall risk level for the coming period.\n"
+                f"- Mention the single biggest weather risk farmers should watch.\n"
+                f"- Advise farmers on monitoring frequency or key action to take this week.\n"
+                f"- MUST end with exactly one of:\n"
+                f"  \"Overall, the agricultural outlook for this period is Favorable.\"\n"
+                f"  \"Overall, the agricultural outlook for this period is Cautionary.\"\n"
+                f"  \"Overall, the agricultural outlook for this period is Unfavorable.\""
+            )
+
         prompt = f"""You are an expert agrometeorologist at FarmRisk. Generate a professional 10-Day Crop-Specific Advisory Summary.
 
 === LOCATION ===
@@ -256,16 +295,14 @@ Condition   : {cw.weather_condition}
 
 === {sm_section} ===
 
-=== {lg_section} ===
-
 === {avail_section} ===
 
 === RETRIEVED ICAR KNOWLEDGE ===
 {rag_section}
 
 === OUTPUT INSTRUCTIONS ===
-Generate exactly THREE paragraphs of plain text, separated by a blank line.
-Total word count MUST be between {settings.ADVISORY_MIN_WORDS} and {settings.ADVISORY_MAX_WORDS} words. Write in full, detailed sentences — do NOT be brief.
+{p_count_instruction}
+{word_count_instruction} Write in full, detailed sentences — do NOT be brief.
 Use Indian date format DD/MM/YYYY for any dates.
 Highlight important words/numbers with single asterisks: *word* or *number*.
 
@@ -293,33 +330,7 @@ NOT ALLOWED — reject these formatting elements:
 ALLOWED single-asterisk inline emphasis examples:
   *Groundnut*    *131.1 mm*    *24.1 °C*    *moderate*    *increasing*
 
-PARAGRAPH 1 — Detailed Weather & Climate Analysis (70–120 words):
-- MUST begin exactly with: "From {start_fmt} to {end_fmt}, "
-- Cover ALL of the following in detail:
-  • Corrected total rainfall, rainy day count, max single-day rainfall, and rainfall pattern classification
-  • Temperature range (min/max), average temperatures, and heat stress implications for crops
-  • Current observed conditions: humidity, wind speed, wind gusts, cloud cover, precipitation, weather condition
-  • Lightning risk score and category with agricultural implication
-  • Soil moisture trend (start → end percentile) only if data is available — otherwise skip silently
-- Write in flowing sentences, not a list.
-- Do NOT include any recommendations or instructions in Paragraph 1.
-
-PARAGRAPH 2 — Crop-Specific Advisory & Field Management (80–140 words):
-- {rag_instruction}
-- Cover ALL relevant aspects: sowing/transplanting timing, irrigation scheduling, fertilizer application (type, rate, timing), pest and disease watch, drainage management, field preparation.
-- Mention the specific crop stage and tailor recommendations to current growth phase.
-- Reference specific weather risks (excess rain, heat stress, wind) and how farmers should respond.
-- Write detailed, actionable sentences — do NOT be vague.
-- Do NOT make claims about data sources.
-
-PARAGRAPH 3 — Outlook & Risk Summary (40–60 words):
-- Summarise the overall risk level for the coming period.
-- Mention the single biggest weather risk farmers should watch.
-- Advise farmers on monitoring frequency or key action to take this week.
-- MUST end with exactly one of:
-  "Overall, the agricultural outlook for this period is Favorable."
-  "Overall, the agricultural outlook for this period is Cautionary."
-  "Overall, the agricultural outlook for this period is Unfavorable."
+{structure_instruction}
 
 HALLUCINATION RULES:
 - Use ONLY the numerical values provided above. Do not invent any values.
@@ -366,18 +377,24 @@ HALLUCINATION RULES:
         text = text.strip()
         paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
 
-        # ---- Structure: exactly 3 paragraphs ----
-        if len(paragraphs) != 3:
+        # ---- General crop detection ----
+        is_general = context.crop_context.crop_id.lower().strip() == "general"
+        expected_paragraphs = 1 if is_general else 3
+
+        # ---- Structure: paragraph count check ----
+        if len(paragraphs) != expected_paragraphs:
             errors.append(
-                f"Expected exactly 3 paragraphs separated by a blank line, got {len(paragraphs)}."
+                f"Expected exactly {expected_paragraphs} paragraph{'s' if expected_paragraphs > 1 else ''} separated by a blank line, got {len(paragraphs)}."
             )
 
         # ---- Word count ----
+        min_words = 110 if is_general else settings.ADVISORY_MIN_WORDS
+        max_words = 150 if is_general else settings.ADVISORY_MAX_WORDS
         word_count = len(text.split())
-        if word_count < settings.ADVISORY_MIN_WORDS:
-            errors.append(f"Too short: {word_count} words (min {settings.ADVISORY_MIN_WORDS}).")
-        if word_count > settings.ADVISORY_MAX_WORDS:
-            errors.append(f"Too long: {word_count} words (max {settings.ADVISORY_MAX_WORDS}).")
+        if word_count < min_words:
+            errors.append(f"Too short: {word_count} words (min {min_words}).")
+        if word_count > max_words:
+            errors.append(f"Too long: {word_count} words (max {max_words}).")
 
         # ---- Paragraph 1 date prefix ----
         if paragraphs:
@@ -395,7 +412,7 @@ HALLUCINATION RULES:
                     f"Paragraph 1 must start with 'From {start_dd} to {end_dd},'. "
                 )
 
-        # ---- Last paragraph (Paragraph 3) must end with outlook sentence ----
+        # ---- Last paragraph must end with outlook sentence ----
         valid_endings = [
             "Overall, the agricultural outlook for this period is Favorable.",
             "Overall, the agricultural outlook for this period is Cautionary.",
@@ -405,8 +422,8 @@ HALLUCINATION RULES:
             if not any(paragraphs[-1].endswith(e) for e in valid_endings):
                 errors.append("Last paragraph must end with a valid outlook sentence.")
 
-        # ---- Paragraph 1 must not contain recommendation language ----
-        if paragraphs:
+        # ---- Paragraph 1 must not contain recommendation language (only for standard crops) ----
+        if paragraphs and not is_general:
             p1_lower = paragraphs[0].lower()
             forbidden_in_p1 = [
                 "farmers should", "farmers must",
