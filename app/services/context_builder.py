@@ -84,7 +84,7 @@ class AdvisoryContextBuilder:
                 and fd.soil_moisture.success
                 and len(fd.soil_moisture.soil_moisture) > 0
             ),
-            lightning_available=req.weatherData.lightning is not None,
+            lightning_available=False,
             calendar_available=(
                 req.calendarData.success
                 and len(req.calendarData.calendar) > 0
