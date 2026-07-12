@@ -1,6 +1,5 @@
 """
 POST /api/advisory — thin orchestration layer.
-
 Flow:
   AIAdvisoryRequest (full frontend payload)
     → Pydantic validation
@@ -83,12 +82,16 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
         )
         village_id = request.forecastData.village_id if request.forecastData else None
 
+        # Build weather hash incorporating forecast fingerprint and soil moisture availability
+        sm_status = "sm_yes" if context.availability.soil_moisture_available else "sm_no"
+        weather_hash = f"{fingerprint}_{sm_status}"
+
         # Build location identifier and key
         advisory_key = advisory_cache.get_key(
             crop=context.crop_context.crop_name,
             latitude=request.location.lat,
             longitude=request.location.lng,
-            weather_hash=fingerprint,
+            weather_hash=weather_hash,
             village_id=village_id,
         )
 
@@ -227,3 +230,90 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
     except Exception as e:
         logger.error(f"Unexpected advisory error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="An unexpected error occurred during advisory generation.")
+
+
+@router.post("/weather-summary", response_model=Dict[str, Any])
+async def generate_weather_summary(request: AIAdvisoryRequest):
+    """
+    Generate a simple 1-2 sentence weather summary using the primary/fallback LLM providers.
+    """
+    t_start = time.perf_counter()
+
+    logger.info(
+        f"Weather summary request | "
+        f"lat={request.location.lat:.4f} lng={request.location.lng:.4f} "
+        f"lang={request.language}"
+    )
+
+    try:
+        # Build compact deterministic AdvisoryContext
+        context = context_builder.build(request)
+        loc = context.location
+        cw = context.current_weather
+
+        # Construct prompt for the 1-2 sentence weather summary
+        prompt = (
+            f"You are a professional weather assistant. Generate a concise weather summary of exactly one to two sentences "
+            f"showing the current weather and the upcoming 10-day forecast status for the location of {loc.name}, {loc.state}.\n\n"
+            f"Facts to use:\n"
+            f"- Current Temperature: {cw.temperature_c:.1f}°C\n"
+            f"- Current Weather Condition: {cw.weather_condition}\n"
+            f"- Current Relative Humidity: {cw.relative_humidity_percent:.0f}%\n"
+            f"- Current Wind Speed: {cw.wind_speed_kmh:.1f} km/h (gusts up to {cw.wind_gusts_kmh:.1f} km/h)\n"
+        )
+
+        if context.forecast_summary:
+            fs = context.forecast_summary
+            prompt += (
+                f"- Upcoming 10-Day Total Rainfall: {fs.total_rainfall_mm:.1f} mm over {fs.rainy_days} rainy days (max single-day rain: {fs.maximum_daily_rainfall_mm:.1f} mm)\n"
+                f"- Upcoming 10-Day Temperature range: {fs.minimum_temperature_c:.1f}°C to {fs.maximum_temperature_c:.1f}°C\n"
+                f"- Upcoming 10-Day Weather pattern: {fs.rainfall_pattern}\n"
+            )
+        
+        prompt += (
+            f"\nInstructions:\n"
+            f"1. Summarize these conditions into exactly one or two sentences.\n"
+            f"2. Keep the tone professional, clear, and direct. Do not include introductory phrases like 'Here is the weather summary:' or 'Based on the provided facts:'.\n"
+            f"3. Do NOT include any agricultural recommendations or formatting (no lists, bold, or italic markdown).\n"
+            f"4. Do NOT mention data sources or RAG.\n"
+            f"5. Write in English.\n"
+        )
+
+        primary = get_primary_provider()
+        fallback = get_fallback_provider()
+
+        raw = None
+        try:
+            raw = await primary.generate_text(prompt=prompt, temperature=0.2)
+        except Exception as e:
+            logger.warning(f"Primary provider failed for weather summary: {e}")
+            if fallback:
+                try:
+                    raw = await fallback.generate_text(prompt=prompt, temperature=0.2)
+                except Exception as fe:
+                    logger.error(f"Fallback provider failed for weather summary: {fe}")
+
+        if raw is None:
+            raise HTTPException(status_code=502, detail="Failed to generate weather summary from LLM providers.")
+
+        weather_summary_text = raw.strip()
+
+        # Wrap in AdvisoryResponse for translation pipeline compat
+        advisory_obj = AdvisoryResponse(advisory_summary=weather_summary_text)
+
+        # Translate if target language is not English
+        is_english = request.language.lower().strip() in ("en", "english")
+        if is_english:
+            translated = advisory_obj.model_dump()
+        else:
+            result = await translation_service.translate_advisory(advisory_obj, request.language)
+            translated = result.data
+
+        total = time.perf_counter() - t_start
+        logger.info(f"Weather summary request complete in {total:.2f}s")
+        return translated
+
+    except Exception as e:
+        logger.error(f"Unexpected weather summary error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+

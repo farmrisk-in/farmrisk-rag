@@ -76,18 +76,20 @@ class AdvisoryContextBuilder:
             weather_available=True,  # weather is always present if we reach here
             corrected_forecast_available=(
                 fd is not None
+                and fd.forecast is not None
                 and fd.forecast.success
-                and len(fd.forecast.forecast) > 0
+                and bool(fd.forecast.forecast)
             ),
             soil_moisture_available=(
                 fd is not None
+                and fd.soil_moisture is not None
                 and fd.soil_moisture.success
-                and len(fd.soil_moisture.soil_moisture) > 0
+                and bool(fd.soil_moisture.soil_moisture)
             ),
             lightning_available=False,
             calendar_available=(
                 req.calendarData.success
-                and len(req.calendarData.calendar) > 0
+                and bool(req.calendarData.calendar)
             ),
         )
 
@@ -257,7 +259,7 @@ class AdvisoryContextBuilder:
     # ------------------------------------------------------------------
 
     def _build_forecast_summary(self, req: AIAdvisoryRequest) -> Optional[ForecastSummary]:
-        if req.forecastData is None:
+        if req.forecastData is None or req.forecastData.forecast is None:
             return None
         raw_days = req.forecastData.forecast.forecast
         if not raw_days:
@@ -352,7 +354,7 @@ class AdvisoryContextBuilder:
     # ------------------------------------------------------------------
 
     def _build_soil_moisture_summary(self, req: AIAdvisoryRequest) -> Optional[SoilMoistureSummary]:
-        if req.forecastData is None:
+        if req.forecastData is None or req.forecastData.soil_moisture is None:
             return None
         records = req.forecastData.soil_moisture.soil_moisture
         if not records:
