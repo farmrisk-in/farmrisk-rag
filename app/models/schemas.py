@@ -130,11 +130,12 @@ class ForecastLocationInput(BaseModel):
 
 class ForecastBlockInput(BaseModel):
     success: bool
-    location: ForecastLocationInput
+    location: Optional[ForecastLocationInput] = None
     grids_used: List[GridUsedInput] = []
     forecast_source: str = ""
     forecast: List[DailyForecastCorrectionInput] = []
     runtime_seconds: float = 0.0
+    error: Optional[Dict[str, Any]] = None
 
 
 class SoilMoistureRecordInput(BaseModel):
@@ -160,20 +161,21 @@ class SoilMoistureLocationInput(BaseModel):
 
 class SoilMoistureBlockInput(BaseModel):
     success: bool
-    location: SoilMoistureLocationInput
+    location: Optional[SoilMoistureLocationInput] = None
     cold_start: bool = False
     days_computed: int = 0
     checkpoint_last_date: str = ""
     soil_moisture: List[SoilMoistureRecordInput] = []
     runtime_seconds: float = 0.0
+    error: Optional[Dict[str, Any]] = None
 
 
 class ForecastDataInput(BaseModel):
     requested_lat: float
     requested_lon: float
     village_id: int
-    forecast: ForecastBlockInput
-    soil_moisture: SoilMoistureBlockInput
+    forecast: Optional[ForecastBlockInput] = None
+    soil_moisture: Optional[SoilMoistureBlockInput] = None
     cache_hit: bool = False
     total_runtime_seconds: float = 0.0
     cache_key: Optional[str] = None
