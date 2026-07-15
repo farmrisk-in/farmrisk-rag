@@ -43,6 +43,8 @@ class TranslationService:
             translated_data = {
                 "advisory_summary": translated_texts[0]
             }
+            if advisory.sources is not None:
+                translated_data["sources"] = advisory.sources
             return TranslationResult(
                 data=translated_data,
                 translated=True,
