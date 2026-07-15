@@ -1,42 +1,36 @@
-# Use Python 3.12.1
-FROM python:3.12.1-slim
+# Use an official Python runtime as a parent image
+FROM python:3.12-slim
 
-# Prevent Python from writing .pyc files
-ENV PYTHONDONTWRITEBYTECODE=1
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PORT=7860 \
+    HF_HOME=/code/.hf_cache
 
-# Ensure Python output is sent straight to terminal
-ENV PYTHONUNBUFFERED=1
+# Set the working directory in the container
+WORKDIR /code
 
-# Disable pip cache
-ENV PIP_NO_CACHE_DIR=1
-
-# Set working directory
-WORKDIR /app
-
-# Install required system dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    gcc \
-    git \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for Docker layer caching
+# Copy the requirements file and install dependencies
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Upgrade pip and install dependencies
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+# Copy the model download script and pre-download the model
+COPY download_models.py .
+RUN python download_models.py
 
-# Pre-download Sentence Transformer model (optional but recommended)
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
-
-# Copy application
+# Copy the rest of the application code
 COPY . .
 
-# Hugging Face Spaces exposes port 7860
-ENV PORT=7860
+# Adjust permissions for Hugging Face non-root user (UID 1000)
+RUN chmod -R 777 /code
 
+# Expose the port the app runs on (Hugging Face expects 7860)
 EXPOSE 7860
 
-# Start FastAPI
+# Command to run the application using uvicorn
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
