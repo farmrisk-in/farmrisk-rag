@@ -175,6 +175,7 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
                     context=context,
                     rag_chunks=rag_chunks,
                 )
+                advisory_obj.sources = rag_chunks
                 logger.info("Generation finished")
 
                 # ------------------------------------------------------------
