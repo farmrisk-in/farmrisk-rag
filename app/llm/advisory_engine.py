@@ -2,18 +2,17 @@
 AdvisoryEngine — generates the canonical English AI Advisory Summary.
 
 Input:  AdvisoryContext (compact deterministic facts) + ICAR RAG chunks
-Output: AdvisoryResponse (plain-text, two paragraphs, 120-180 words)
+Output: AdvisoryResponse (plain-text, formatted per rules)
 
 Rules:
 - Gemini receives structured text facts, not raw JSON arrays.
 - All arithmetic is already done in ContextBuilder.
-- RAG chunks MUST exist — raises InsufficientKnowledgeError otherwise.
 - Output is validated; retries preserve the full original base prompt.
 - _get_mock_advisory() is available in dev mode only.
 """
 
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 
 from app.core.config import settings
@@ -34,7 +33,232 @@ class AdvisoryGenerationError(Exception):
 
 
 # ---------------------------------------------------------------------------
-# Engine
+# SOIL MOISTURE CATEGORY & TRAJECTORY HELPERS
+# (ClimateAdapt / project percentile bands)
+# ---------------------------------------------------------------------------
+
+def soil_word(p: Optional[float]) -> str:
+    """Map a soil-moisture percentile to its category word."""
+    if p is None:
+        return ""
+    if p > 98:
+        return "Exceptional Wet"
+    if p > 95:
+        return "Extreme Wet"
+    if p > 90:
+        return "Severe Wet"
+    if p > 80:
+        return "Moderate Wet"
+    if p > 70:
+        return "Abnormally Wet"
+    if p > 30:
+        return "Normal"
+    if p > 20:
+        return "Abnormally Dry"
+    if p > 10:
+        return "Moderate Dry"
+    if p > 5:
+        return "Extreme Dry"
+    if p > 2:
+        return "Severe Dry"
+    return "Exceptional Dry"
+
+
+def _band_index(p: float) -> int:
+    """Ordinal band index (0 = Exceptional Dry ... 10 = Exceptional Wet). Higher = wetter."""
+    order = [
+        "Exceptional Dry", "Severe Dry", "Extreme Dry", "Moderate Dry", "Abnormally Dry",
+        "Normal",
+        "Abnormally Wet", "Moderate Wet", "Severe Wet", "Extreme Wet", "Exceptional Wet",
+    ]
+    return order.index(soil_word(p))
+
+
+def soil_trajectory_keypoints(
+    series: Optional[List[float]],
+    start_date: str = "",
+    peak_rain_date: str = "",
+) -> Dict[str, Any]:
+    """Walk the DAILY soil-moisture percentile series and extract band-crossing
+    key points (start, interior turning points that cross a category band, end).
+
+    Returns:
+      {
+        'available': bool,
+        'points': [ {'word': <category>, 'when': <relative phrase>, 'kind': 'start'|'trough'|'peak'|'end'} ],
+        'direction': 'rising'|'falling'|'steady'|'mixed',
+        'hint': <one-line phrase the model can build the sentence from>,
+      }
+    Numbers are NEVER included in any output field — only category words + timing.
+    """
+    if not series or len(series) < 2:
+        return {"available": False, "points": [], "direction": "steady", "hint": ""}
+
+    def _rel(day_idx: int) -> str:
+        if peak_rain_date and start_date:
+            try:
+                _pk = datetime.strptime(peak_rain_date[:10], "%Y-%m-%d")
+                _st = datetime.strptime(start_date[:10], "%Y-%m-%d")
+                if (_st + timedelta(days=day_idx)) == _pk:
+                    return "around the wettest day"
+            except Exception:
+                pass
+        if start_date:
+            try:
+                _st = datetime.strptime(start_date[:10], "%Y-%m-%d")
+                d = _st + timedelta(days=day_idx)
+                dfmt = d.strftime("%d/%m/%Y")
+                if day_idx <= 0:
+                    return "at the start"
+                if day_idx == 1:
+                    return f"by {dfmt} (tomorrow)"
+                return f"around {dfmt} (after about {day_idx} days)"
+            except Exception:
+                pass
+        if day_idx <= 0:
+            return "at the start"
+        return f"after about {day_idx} days"
+
+    n = len(series)
+    bands = [_band_index(v) for v in series]
+
+    points = [{"word": soil_word(series[0]), "when": _rel(0), "kind": "start", "_idx": 0, "_band": bands[0]}]
+
+    i = 1
+    while i < n - 1:
+        prev, cur, nxt = series[i - 1], series[i], series[i + 1]
+        is_trough = cur <= prev and cur <= nxt
+        is_peak = cur >= prev and cur >= nxt
+        if is_trough or is_peak:
+            last_band = points[-1]["_band"]
+            if bands[i] != last_band:
+                kind = "trough" if is_trough else "peak"
+                points.append({
+                    "word": soil_word(cur),
+                    "when": _rel(i),
+                    "kind": kind,
+                    "_idx": i,
+                    "_band": bands[i]
+                })
+        i += 1
+
+    end_word = soil_word(series[-1])
+    if points[-1]["_band"] != bands[-1] or points[-1]["kind"] == "start":
+        points.append({
+            "word": end_word,
+            "when": _rel(n - 1),
+            "kind": "end",
+            "_idx": n - 1,
+            "_band": bands[-1]
+        })
+    else:
+        points[-1]["kind"] = "end"
+        points[-1]["when"] = _rel(n - 1)
+
+    if bands[-1] > bands[0]:
+        direction = "rising"
+    elif bands[-1] < bands[0]:
+        direction = "falling"
+    else:
+        direction = "steady"
+
+    if any(pt["kind"] in ("trough", "peak") for pt in points):
+        direction = "mixed"
+
+    if len(points) == 1 or all(p["word"] == points[0]["word"] for p in points):
+        hint = f"soil moisture stays {points[0]['word']} throughout"
+    else:
+        seq = " -> ".join(f"{p['word']} ({p['when']})" for p in points)
+        hint = f"soil moisture trajectory: {seq}"
+
+    clean = [{"word": p["word"], "when": p["when"], "kind": p["kind"]} for p in points]
+    return {"available": True, "points": clean, "direction": direction, "hint": hint}
+
+
+# ---------------------------------------------------------------------------
+# OUTLOOK DECISION ENGINE
+# Rule-based agricultural outlook, grounded in current IMD operational thresholds.
+# ---------------------------------------------------------------------------
+
+def decide_outlook(
+    max_daily_rain: Optional[float],
+    max_temp: Optional[float],
+    wind_gusts: Optional[float],
+    soil_moisture_available: bool,
+    soil_percentile: Optional[float],
+    station_type: str = "plains",
+) -> Dict[str, Any]:
+    """Return {'outlook': <Favorable|Cautionary|Unfavorable>, 'reasons': [...]}.
+
+    Deterministic and auditable: each fired rule is recorded in 'reasons'.
+    """
+    st = (station_type or "plains").strip().lower()
+    heat_threshold = {"plains": 40.0, "coastal": 37.0, "hilly": 30.0}.get(st, 40.0)
+
+    sm = soil_percentile if soil_moisture_available else None
+
+    unfavorable_reasons: List[str] = []
+    cautionary_reasons: List[str] = []
+
+    # ---- Rainfall (peak DAILY value, per IMD 24-hr bands) ----
+    if max_daily_rain is not None:
+        if max_daily_rain >= 115.6:
+            unfavorable_reasons.append(
+                f"peak daily rain {max_daily_rain:.1f} mm is Very Heavy+ (IMD >=115.6 mm) — flooding/waterlogging risk"
+            )
+        elif max_daily_rain >= 64.5:
+            if sm is not None and sm > 70:
+                unfavorable_reasons.append(
+                    f"Heavy daily rain {max_daily_rain:.1f} mm (IMD 64.5-115.5) on already-wet soil ({soil_word(sm)})"
+                )
+            else:
+                cautionary_reasons.append(
+                    f"Heavy daily rain {max_daily_rain:.1f} mm (IMD 64.5-115.5 mm)"
+                )
+        elif max_daily_rain >= 15.6:
+            if wind_gusts is not None and wind_gusts >= 40:
+                cautionary_reasons.append(
+                    f"Moderate rain {max_daily_rain:.1f} mm with gusty winds — spray drift/minor lodging risk"
+                )
+
+    # ---- Heat (IMD absolute thresholds) ----
+    if max_temp is not None:
+        if max_temp >= 45.0:
+            unfavorable_reasons.append(
+                f"max temperature {max_temp:.1f} C reaches IMD severe-heat level (>=45 C)"
+            )
+        elif max_temp >= heat_threshold:
+            cautionary_reasons.append(
+                f"max temperature {max_temp:.1f} C at/above IMD {st} heatwave threshold (>={heat_threshold:.0f} C)"
+            )
+
+    # ---- Wind gusts (IMD gust bands) ----
+    if wind_gusts is not None:
+        if wind_gusts >= 50:
+            unfavorable_reasons.append(
+                f"wind gusts {wind_gusts:.0f} km/h (>=50) — lodging and spray loss risk"
+            )
+        elif wind_gusts >= 40:
+            cautionary_reasons.append(
+                f"wind gusts {wind_gusts:.0f} km/h (40-50 band) — postpone spraying"
+            )
+
+    # ---- Soil moisture (percentile categories) ----
+    if sm is not None:
+        if sm > 90 or sm <= 5:
+            unfavorable_reasons.append(f"soil moisture is {soil_word(sm)}")
+        elif sm > 70 or sm <= 30:
+            cautionary_reasons.append(f"soil moisture is {soil_word(sm)}")
+
+    if unfavorable_reasons:
+        return {"outlook": "Unfavorable", "reasons": unfavorable_reasons + cautionary_reasons}
+    if cautionary_reasons:
+        return {"outlook": "Cautionary", "reasons": cautionary_reasons}
+    return {"outlook": "Favorable", "reasons": ["no IMD warning-level rain, heat, wind, or soil stress"]}
+
+
+# ---------------------------------------------------------------------------
+# Engine Class
 # ---------------------------------------------------------------------------
 
 class AdvisoryEngine:
@@ -47,11 +271,10 @@ class AdvisoryEngine:
         rag_chunks: List[Dict[str, Any]],
     ) -> AdvisoryResponse:
         """
-        Generate a two-paragraph plain-text advisory.
+        Generate plain-text advisory summary.
 
         If rag_chunks is empty, generation continues with a weather-only prompt
-        (no ICAR recommendations invented). This avoids a hard 503 failure for
-        general/unknown crops where the RAG index has no matching chunks.
+        (no ICAR recommendations invented).
 
         Raises:
             AdvisoryGenerationError: if all LLM providers fail on every attempt.
@@ -62,7 +285,6 @@ class AdvisoryEngine:
                 "without crop-specific ICAR recommendations."
             )
 
-        # Build the base prompt once — preserved for all retry correction prompts
         base_prompt = self._build_prompt(context, rag_chunks)
         prompt = base_prompt
 
@@ -70,14 +292,12 @@ class AdvisoryEngine:
         fallback = get_fallback_provider()
 
         for attempt in range(1, 4):
-            # Try primary provider
             raw = None
             try:
                 raw = await primary.generate_text(prompt=prompt, temperature=settings.TEMPERATURE)
             except Exception as e:
                 logger.warning(f"Primary provider attempt {attempt} failed: {e}")
 
-            # If primary failed, try fallback
             if raw is None and fallback:
                 try:
                     raw = await fallback.generate_text(prompt=prompt, temperature=settings.TEMPERATURE)
@@ -96,7 +316,6 @@ class AdvisoryEngine:
 
             logger.warning(f"Advisory attempt {attempt} failed validation: {errors}")
 
-            # Correction prompt preserves the original base prompt (never loses context)
             prompt = self._build_correction_prompt(
                 base_prompt=base_prompt,
                 previous=raw,
@@ -122,68 +341,99 @@ class AdvisoryEngine:
         cw = ctx.current_weather
         av = ctx.availability
 
-        # ---- Forecast section ----
-        wa = ctx.weather_api_summary
+        # Extract Forecast Details
+        forecast_days = 0
+        total_rainfall = 0.0
+        rainy_days = 0
+        max_daily_rain = 0.0
+        rainfall_pattern = "Dry"
+        min_temp = 0.0
+        max_temp = 0.0
+        avg_min_temp = 0.0
+        avg_max_temp = 0.0
+        start_fmt = ""
+        end_fmt = ""
+
         if ctx.forecast_summary:
             fs = ctx.forecast_summary
+            forecast_days = fs.forecast_days
+            total_rainfall = fs.total_rainfall_mm
+            rainy_days = fs.rainy_days
+            max_daily_rain = fs.maximum_daily_rainfall_mm
+            rainfall_pattern = fs.rainfall_pattern
+            min_temp = fs.minimum_temperature_c
+            max_temp = fs.maximum_temperature_c
+            avg_min_temp = fs.average_min_temperature_c
+            avg_max_temp = fs.average_max_temperature_c
             start_fmt = self._fmt_date(fs.forecast_start_date)
             end_fmt = self._fmt_date(fs.forecast_end_date)
             forecast_section = (
                 f"CORRECTED FORECAST SUMMARY (Primary — Bias-Corrected Model)\n"
-                f"Forecast period  : {start_fmt} to {end_fmt} ({fs.forecast_days} days)\n"
-                f"Total rainfall   : {fs.total_rainfall_mm:.1f} mm\n"
-                f"Rainy days       : {fs.rainy_days} of {fs.forecast_days}\n"
-                f"Max daily rain   : {fs.maximum_daily_rainfall_mm:.1f} mm\n"
-                f"Rainfall pattern : {fs.rainfall_pattern}\n"
-                f"Temp range       : {fs.minimum_temperature_c:.1f} °C to {fs.maximum_temperature_c:.1f} °C\n"
-                f"Avg min/max temp : {fs.average_min_temperature_c:.1f} °C / {fs.average_max_temperature_c:.1f} °C"
+                f"Forecast period  : {start_fmt} to {end_fmt} ({forecast_days} days)\n"
+                f"Total rainfall   : {total_rainfall:.1f} mm\n"
+                f"Rainy days       : {rainy_days} of {forecast_days}\n"
+                f"Max daily rain   : {max_daily_rain:.1f} mm\n"
+                f"Rainfall pattern : {rainfall_pattern}\n"
+                f"Temp range       : {min_temp:.1f} °C to {max_temp:.1f} °C\n"
+                f"Avg min/max temp : {avg_min_temp:.1f} °C / {avg_max_temp:.1f} °C"
             )
         else:
-            # Fall back to weather API daily dates for the "From ... to ..." prefix
+            wa = ctx.weather_api_summary
             start_fmt = self._fmt_date(wa.api_start_date) if wa.api_start_date else ""
             end_fmt = self._fmt_date(wa.api_end_date) if wa.api_end_date else ""
+            max_daily_rain = wa.api_total_rainfall_mm
+            max_temp = wa.api_max_temp_c
             forecast_section = "CORRECTED FORECAST SUMMARY: Not available."
 
-        # ---- Weather API secondary ----
+        # Weather API secondary
+        wa = ctx.weather_api_summary
+        api_start_fmt = self._fmt_date(wa.api_start_date) if wa.api_start_date else ""
+        api_end_fmt = self._fmt_date(wa.api_end_date) if wa.api_end_date else ""
         api_section = (
-            f"WEATHER API DAILY ({wa.api_start_date} to {wa.api_end_date})\n"
+            f"WEATHER API DAILY ({api_start_fmt} to {api_end_fmt})\n"
             f"Total rainfall: {wa.api_total_rainfall_mm:.1f} mm | "
             f"Temp range: {wa.api_min_temp_c:.1f} °C – {wa.api_max_temp_c:.1f} °C"
         )
 
-        # ---- Soil moisture section — explicit start/end/min/max ----
+        # Rule-based outlook (IMD-grounded, deterministic)
+        soil_pct_for_outlook = ctx.soil_moisture_summary.forecast_max_percentile if (ctx.soil_moisture_summary and av.soil_moisture_available) else None
+        outlook_result = decide_outlook(
+            max_daily_rain=max_daily_rain if ctx.forecast_summary else wa.api_total_rainfall_mm,
+            max_temp=max_temp if ctx.forecast_summary else wa.api_max_temp_c,
+            wind_gusts=cw.wind_gusts_kmh,
+            soil_moisture_available=av.soil_moisture_available,
+            soil_percentile=soil_pct_for_outlook,
+            station_type="plains",
+        )
+        decided_outlook = outlook_result["outlook"]
+        outlook_reasons = "; ".join(outlook_result["reasons"])
+        outlook_sentence = f"Overall, the agricultural outlook for this period is *{decided_outlook}*."
+
+        # Soil moisture trajectory
+        soil_traj_hint = ""
         if ctx.soil_moisture_summary and av.soil_moisture_available:
             sm = ctx.soil_moisture_summary
+            end_word = soil_word(sm.end_percentile)
+            soil_traj_hint = f"soil moisture trajectory: {soil_word(sm.start_percentile)} (at the start) -> {end_word} (end)"
+
+        if ctx.soil_moisture_summary and av.soil_moisture_available:
+            sm = ctx.soil_moisture_summary
+            _traj_line = f"Soil-moisture trajectory (category words): {soil_traj_hint}\n" if soil_traj_hint else f"Soil-moisture condition (category word): {soil_word(sm.end_percentile)}\n"
             sm_section = (
-                f"SOIL MOISTURE SUMMARY\n"
-                f"Latest known percentile       : {sm.latest_sm_percentile:.1f}\n"
-                f"Forecast start percentile     : {sm.start_percentile:.1f}\n"
-                f"Forecast end percentile       : {sm.end_percentile:.1f}\n"
-                f"Forecast minimum percentile   : {sm.forecast_min_percentile:.1f}\n"
-                f"Forecast maximum percentile   : {sm.forecast_max_percentile:.1f}\n"
-                f"Forecast average percentile   : {sm.forecast_average_percentile:.1f}\n"
-                f"Forecast w_frac range         : {sm.forecast_min_w_frac:.3f} to {sm.forecast_max_w_frac:.3f}\n"
-                f"Overall forecast trend        : {sm.soil_moisture_trend}\n"
+                f"SOIL MOISTURE SUMMARY (category words only — raw percentile values are deliberately omitted)\n"
+                f"{_traj_line}"
                 f"\n"
-                f"IMPORTANT SOIL MOISTURE INTERPRETATION RULES:\n"
-                f"- Forecast start percentile ({sm.start_percentile:.1f}) and forecast end percentile "
-                f"({sm.end_percentile:.1f}) describe the change over the forecast period.\n"
-                f"- Forecast minimum ({sm.forecast_min_percentile:.1f}) and maximum "
-                f"({sm.forecast_max_percentile:.1f}) describe only the extremes reached during the period.\n"
-                f"- NEVER describe minimum/maximum values as the starting and ending values.\n"
-                f"- If describing the soil moisture trend numerically, use ONLY:\n"
-                f"  {sm.start_percentile:.1f} → {sm.end_percentile:.1f}\n"
-                f"- The maximum percentile ({sm.forecast_max_percentile:.1f}) may be mentioned separately "
-                f"as the peak value reached during the period.\n"
-                f"- Do NOT describe soil as saturated, waterlogged, drought-stressed, critically dry, "
-                f"or use any other categorical soil condition — the AdvisoryContext does not provide "
-                f"a deterministic classification.\n"
-                f"- Do NOT infer soil-condition categories from percentile or w_frac values."
+                f"IMPORTANT SOIL MOISTURE RULES:\n"
+                f"- Describe soil moisture ONLY with the category words provided above "
+                f"(Exceptional/Severe/Moderate/Abnormally Wet, Normal, Abnormally/Moderate/Extreme/Severe/Exceptional Dry).\n"
+                f"- NEVER print a percentile number, a w_frac value, or the word 'percentile'.\n"
+                f"- If the trajectory shows a dip or recovery, describe it with its timing and tie it to the weather; otherwise describe the steady condition.\n"
+                f"- Add the farming implication (wet -> waterlogging/drainage; dry -> conserve water/irrigate)."
             )
         else:
             sm_section = "SOIL MOISTURE: No data available. Do NOT mention soil moisture at all in the advisory."
 
-        # ---- Availability flags ----
+        # Source availability
         avail_section = (
             f"SOURCE AVAILABILITY\n"
             f"Corrected forecast : {'Yes' if av.corrected_forecast_available else 'No'}\n"
@@ -191,7 +441,7 @@ class AdvisoryEngine:
             f"Crop calendar      : {'Yes' if av.calendar_available else 'No'}"
         )
 
-        # ---- RAG chunks ----
+        # RAG Chunks
         rag_lines = []
         if rag_chunks:
             for i, chunk in enumerate(rag_chunks, 1):
@@ -201,7 +451,7 @@ class AdvisoryEngine:
                     f"Page      : {chunk.get('page', 'N/A')}\n"
                     f"Crop      : {chunk.get('crop', 'N/A')}\n"
                     f"Season    : {chunk.get('season', 'N/A')}\n"
-                    f"Similarity: {round(chunk.get('score') or 0, 3)}\n"
+                    f"Similarity: {round(chunk.get('score') or 0.0, 3)}\n"
                     f"Content   :\n{chunk.get('content', '')}\n"
                 )
             rag_section = "\n".join(rag_lines)
@@ -220,54 +470,112 @@ class AdvisoryEngine:
                 "Instead, provide practical general weather-based guidance for farmers and end with the outlook sentence."
             )
 
-        # ---- General crop customization ----
-        is_general = ctx.crop_context.crop_id.lower().strip() == "general"
+        # Crop instructions
+        is_general = crop.crop_id.lower().strip() == "general"
         if is_general:
             p_count_instruction = "Generate exactly ONE paragraph of plain text."
-            word_count_instruction = "Total word count MUST be between 110 and 150 words."
+            word_count_instruction = "Total word count MUST be between 70 and 100 words."
             structure_instruction = (
+                "AUDIENCE: An ordinary reader in a village — could be a farmer, a family member, or a "
+                "field worker. Write the way a helpful local agriculture extension officer (KVK) would explain "
+                "things — simple, direct, and focused on what to DO. Do NOT write like a weather report.\n"
+                "\n"
                 "The single paragraph MUST:\n"
-                f"- Begin exactly with: \"From {start_fmt} to {end_fmt}, \"\n"
-                "- Explicitly include the location (village, district, state) and cover weather forecast, observed conditions (wind speed, wind gusts, humidity, cloud cover), temperature range, average minimum and maximum temperatures, rainfall (total, rainy days, peak intensity), and starting/ending soil moisture conditions (except lightning) in concise detail.\n"
-                "- Provide direct, highly actionable field management and crop care recommendations suitable for all crops (e.g. drainage, chemical spray/fertilizer postponement details, monitoring). Avoid any verbose or unnecessary filler sentences.\n"
-                "- End with exactly one of the outlook sentences:\n"
-                "  \"Overall, the agricultural outlook for this period is Favorable.\"\n"
-                "  \"Overall, the agricultural outlook for this period is Cautionary.\"\n"
-                "  \"Overall, the agricultural outlook for this period is Unfavorable.\""
+                f"- Begin exactly with: \"Over the next {forecast_days} days, \"\n"
+                "- Name the location (village, district, state) plainly, as a place — do NOT address a specific "
+                "group such as \"farmers in\" the village. Speak to the reader directly (\"you\") or impersonally.\n"
+                "- Use relative timing that anyone understands (e.g. \"after about 4 days\", "
+                f"\"around {end_fmt}\") instead of listing full calendar dates for events.\n"
+                "\n"
+                "USE THE INPUT VALUES, BUT PAIR EACH WITH AN ACTION:\n"
+                "- Rainfall: state the total rainfall over the whole period as a plain sum "
+                f"(*{total_rainfall:.1f} mm* over *{rainy_days}* rainy days). Then describe the WETTEST SINGLE DAY "
+                "as an upcoming EVENT, not a statistic, and you MUST say WHICH DAY it is. "
+                "If no date for the wettest day is available, say \"on the wettest day\" and do NOT invent a date. "
+                "Do NOT write it as \"your peak rainfall will be X\".\n"
+                "- Pair the rain with the matching action (drainage for heavy days, water conservation for light rain).\n"
+                "- Mention the temperature/heat and gusty-wind situation plainly, and if winds are strong warn that "
+                "spraying will drift and be wasted — so postpone spray/fertilizer.\n"
+                "- Give 1-2 concrete field actions tied to WHEN to act or WHAT sign to watch.\n"
+                "\n"
+                "DAILY RAINFALL CATEGORY (this table applies to a SINGLE DAY's rainfall ONLY — the peak daily value. "
+                "NEVER apply it to the multi-day total):\n"
+                "  0.1 - 15.5 mm    -> Light Rainfall\n"
+                "  15.6 - 64.4 mm   -> Moderate Rainfall\n"
+                "  64.5 - 115.5 mm  -> Heavy Rainfall\n"
+                "  115.6 - 204.4 mm -> Very Heavy Rainfall\n"
+                "  more than 204.4 mm -> Extremely Heavy Rainfall\n"
+                "\n"
+                "SOIL MOISTURE — describe how it changes over the period, in PLAIN WORDS ONLY "
+                "(category words, never numbers):\n"
+                + (
+                    f"  The soil-moisture trajectory has already been worked out for you: {soil_traj_hint}. "
+                    "Turn this into ONE natural sentence — mention the direction and, if the trajectory shows a "
+                    "dip or recovery (a trough or peak), say when it happens and tie it to the weather "
+                    "(e.g. drying out first, then recovering after the rain).\n"
+                    if soil_traj_hint else
+                    "  If no soil-moisture trajectory is provided, skip soil moisture silently.\n"
+                )
+                + "- Add the farming implication (wet -> watch for waterlogging, ensure drainage; "
+                "dry -> conserve water, plan irrigation).\n"
+                "- NEVER print any soil moisture number, the word 'percentile', or 'w_frac' — category words only.\n"
+                "\n"
+                "- Keep sentences short and plain. Avoid filler and jargon.\n"
+                f"- The outlook for this period has ALREADY been decided as: {decided_outlook} "
+                f"(reason: {outlook_reasons}). You MUST end the paragraph with EXACTLY this sentence, "
+                f"word for word:\n  \"{outlook_sentence}\"\n"
+                "  Do NOT choose a different outlook word; use the decided one above."
             )
         else:
             p_count_instruction = "Generate exactly THREE paragraphs of plain text, separated by a blank line."
-            word_count_instruction = f"Total word count MUST be between {settings.ADVISORY_MIN_WORDS} and {settings.ADVISORY_MAX_WORDS} words."
+            word_count_instruction = "Total word count MUST be between 90 and 140 words."
             structure_instruction = (
-                f"PARAGRAPH 1 — Detailed Weather & Climate Analysis (70–120 words):\n"
-                f"- MUST begin exactly with: \"From {start_fmt} to {end_fmt}, \"\n"
-                f"- Cover ALL of the following in detail:\n"
-                f"  • Corrected total rainfall, rainy day count, max single-day rainfall, and rainfall pattern classification\n"
-                f"  • Temperature range (min/max), average temperatures, and heat stress implications for crops\n"
-                f"  • Current observed conditions: humidity, wind speed, wind gusts, cloud cover, precipitation, weather condition\n"
-                f"  • Soil moisture trend (start → end percentile) only if data is available — otherwise skip silently\n"
-                f"- Write in flowing sentences, not a list.\n"
-                f"- Do NOT include any recommendations or instructions in Paragraph 1.\n"
-                f"\n"
-                f"PARAGRAPH 2 — Crop-Specific Advisory & Field Management (80–140 words):\n"
+                "REGISTER: Write as an expert agrometeorologist — professional, precise, and detailed. "
+                "But address the reader neutrally: do NOT use \"farmers in\" or address any specific group; "
+                "speak impersonally or to \"you\". Use relative timing anyone understands (e.g. \"after about "
+                f"4 days\", \"around {end_fmt}\") rather than listing full calendar dates for events.\n"
+                "\n"
+                f"PARAGRAPH 1 — Weather & Climate Analysis (45–65 words):\n"
+                f"- MUST begin exactly with: \"Over the next {forecast_days} days, \"\n"
+                "- Name the location (village, district, state) as a place, not as \"farmers in\".\n"
+                "- State total rainfall as a plain sum (*{total_rainfall:.1f} mm* over *{rainy_days}* rainy days).\n"
+                "- Describe the WETTEST SINGLE DAY as an event and you MUST say WHICH DAY it is. "
+                "If no date for the wettest day is available, say \"on the wettest day\" and do NOT invent one.\n"
+                "- Cover temperature range and heat-stress implications, and current observed conditions "
+                "(humidity, wind speed, gusts, cloud cover) in plain professional terms.\n"
+                + (
+                    f"- Soil moisture: the trajectory has already been worked out: {soil_traj_hint}. "
+                    "Describe how it changes over the period in CATEGORY WORDS only (never a number or word 'percentile'); "
+                    "if it dips or recovers, note when and tie it to the weather.\n"
+                    if soil_traj_hint else
+                    "- Soil moisture: skip silently (no data).\n"
+                )
+                + "- Write in flowing sentences, not a list. No recommendations in Paragraph 1.\n"
+                "\n"
+                "DAILY RAINFALL CATEGORY (this table applies to a SINGLE DAY's rainfall ONLY — the peak daily value. "
+                "NEVER apply it to the multi-day total):\n"
+                "  0.1 - 15.5 mm    -> Light Rainfall\n"
+                "  15.6 - 64.4 mm   -> Moderate Rainfall\n"
+                "  64.5 - 115.5 mm  -> Heavy Rainfall\n"
+                "  115.6 - 204.4 mm -> Very Heavy Rainfall\n"
+                "  more than 204.4 mm -> Extremely Heavy Rainfall\n"
+                "\n"
+                f"PARAGRAPH 2 — Crop-Specific Advisory & Field Management (25–40 words):\n"
                 f"- {rag_instruction}\n"
-                f"- Cover ALL relevant aspects: sowing/transplanting timing, irrigation scheduling, fertilizer application (type, rate, timing), pest and disease watch, drainage management, field preparation.\n"
-                f"- Mention the specific crop stage and tailor recommendations to current growth phase.\n"
-                f"- Reference specific weather risks (excess rain, heat stress, wind) and how farmers should respond.\n"
-                f"- Write detailed, actionable sentences — do NOT be vague.\n"
-                f"- Do NOT make claims about data sources.\n"
-                f"\n"
-                f"PARAGRAPH 3 — Outlook & Risk Summary (40–60 words):\n"
-                f"- Summarise the overall risk level for the coming period.\n"
-                f"- Mention the single biggest weather risk farmers should watch.\n"
-                f"- Advise farmers on monitoring frequency or key action to take this week.\n"
-                f"- MUST end with exactly one of:\n"
-                f"  \"Overall, the agricultural outlook for this period is Favorable.\"\n"
-                f"  \"Overall, the agricultural outlook for this period is Cautionary.\"\n"
-                f"  \"Overall, the agricultural outlook for this period is Unfavorable.\""
+                "- Give the most relevant actions for the current stage: irrigation, fertilizer (type/rate/timing), "
+                "pest and disease watch, drainage — tied to WHEN to act or WHAT sign to watch.\n"
+                f"- Reference the specific crop and its {crop.crop_stage} stage, and the key weather risk (excess rain, "
+                "heat, wind) and the response. Be concrete, not vague. Do NOT make claims about data sources.\n"
+                "\n"
+                f"PARAGRAPH 3 — Outlook & Risk Summary (15–25 words):\n"
+                "- Summarise the overall risk level and the single biggest weather risk to watch this period.\n"
+                "- Advise on monitoring frequency or the key action to take.\n"
+                f"- The outlook has ALREADY been decided as: {decided_outlook} (reason: {outlook_reasons}). "
+                f"Your risk summary MUST be consistent with this, and you MUST end with EXACTLY this sentence, word for word:\n  \"{outlook_sentence}\"\n"
+                "  Do NOT choose a different outlook word; use the decided one above."
             )
 
-        prompt = f"""You are an expert agrometeorologist at FarmRisk. Generate a professional 10-Day Crop-Specific Advisory Summary.
+        prompt = f"""You are an expert agrometeorologist at FarmRisk. Generate a professional {forecast_days}-Day Crop-Specific Advisory Summary.
 
 === LOCATION ===
 Village     : {loc.name}
@@ -302,7 +610,7 @@ Condition   : {cw.weather_condition}
 
 === OUTPUT INSTRUCTIONS ===
 {p_count_instruction}
-{word_count_instruction} Write in full, detailed sentences — do NOT be brief.
+{word_count_instruction} Be concise, focused, and precise — ensure total word count is strictly within the allowed range.
 Use Indian date format DD/MM/YYYY for any dates.
 Highlight important words/numbers with single asterisks: *word* or *number*.
 
@@ -345,13 +653,12 @@ HALLUCINATION RULES:
         previous: str,
         errors: List[str],
     ) -> str:
-        """
-        Build a correction prompt that preserves the complete original factual context.
-        The previous invalid output is shown so the model can diff against it,
-        but the model is explicitly told to regenerate from the original facts — not
-        to copy unsupported statements from the invalid output.
-        """
+
         error_list = "\n".join(f"  - {e}" for e in errors)
+        length_warning = ""
+        if any("Too long" in e for e in errors):
+            length_warning = "CRITICAL LENGTH WARNING: Your previous response exceeded the max word count. Trim fluff, reduce wordiness, and ensure the entire text is strictly under 130 words!\n\n"
+
         return (
             f"=== ORIGINAL FACTUAL CONTEXT AND RETRIEVED ICAR KNOWLEDGE ===\n"
             f"{base_prompt}\n\n"
@@ -360,6 +667,7 @@ HALLUCINATION RULES:
             f"=== VALIDATION ERRORS THAT MUST BE CORRECTED ===\n"
             f"{error_list}\n\n"
             f"=== CORRECTION INSTRUCTIONS ===\n"
+            f"{length_warning}"
             f"Regenerate the advisory from the ORIGINAL FACTUAL CONTEXT above.\n"
             f"Correct every validation error listed above.\n"
             f"Do NOT copy unsupported statements from the previous invalid output.\n"
@@ -377,52 +685,89 @@ HALLUCINATION RULES:
         text = text.strip()
         paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
 
-        # ---- General crop detection ----
         is_general = context.crop_context.crop_id.lower().strip() == "general"
         expected_paragraphs = 1 if is_general else 3
 
-        # ---- Structure: paragraph count check ----
+        # ---- Paragraph count check ----
         if len(paragraphs) != expected_paragraphs:
             errors.append(
-                f"Expected exactly {expected_paragraphs} paragraph{'s' if expected_paragraphs > 1 else ''} separated by a blank line, got {len(paragraphs)}."
+                f"Expected exactly {expected_paragraphs} paragraph{'s' if expected_paragraphs > 1 else ''} "
+                f"separated by a blank line, got {len(paragraphs)}."
             )
 
-        # ---- Word count ----
-        min_words = 110 if is_general else settings.ADVISORY_MIN_WORDS
-        max_words = 150 if is_general else settings.ADVISORY_MAX_WORDS
+        # ---- Word count check ----
+        min_words = 70 if is_general else 90
+        max_words = 100 if is_general else 140
         word_count = len(text.split())
         if word_count < min_words:
             errors.append(f"Too short: {word_count} words (min {min_words}).")
         if word_count > max_words:
             errors.append(f"Too long: {word_count} words (max {max_words}).")
 
-        # ---- Paragraph 1 date prefix ----
+        # ---- Paragraph 1 date/period prefix check ----
+        forecast_days = context.forecast_summary.forecast_days if context.forecast_summary else 0
         if paragraphs:
+            start_dd = None
+            end_dd = None
             if context.forecast_summary:
                 start_dd = self._fmt_date(context.forecast_summary.forecast_start_date)
                 end_dd = self._fmt_date(context.forecast_summary.forecast_end_date)
             elif context.weather_api_summary.api_start_date:
                 start_dd = self._fmt_date(context.weather_api_summary.api_start_date)
                 end_dd = self._fmt_date(context.weather_api_summary.api_end_date)
-            else:
-                start_dd = end_dd = None
 
-            if start_dd and not paragraphs[0].startswith(f"From {start_dd}"):
-                errors.append(
-                    f"Paragraph 1 must start with 'From {start_dd} to {end_dd},'. "
-                )
+            expected_prefix = f"Over the next {forecast_days} days," if forecast_days > 0 else (f"From {start_dd}" if start_dd else None)
+            alt_prefix = f"From {start_dd}" if start_dd else None
 
-        # ---- Last paragraph must end with outlook sentence ----
+            p1_start = paragraphs[0]
+            prefix_ok = False
+            if expected_prefix and p1_start.startswith(expected_prefix):
+                prefix_ok = True
+            elif alt_prefix and p1_start.startswith(alt_prefix):
+                prefix_ok = True
+
+            if not prefix_ok and expected_prefix:
+                errors.append(f"Paragraph 1 must start with '{expected_prefix}'.")
+
+        # ---- Expected outlook determination & validation ----
+        max_daily_rain = context.forecast_summary.maximum_daily_rainfall_mm if context.forecast_summary else context.weather_api_summary.api_total_rainfall_mm
+        max_temp = context.forecast_summary.maximum_temperature_c if context.forecast_summary else context.weather_api_summary.api_max_temp_c
+        soil_pct = context.soil_moisture_summary.forecast_max_percentile if (context.soil_moisture_summary and context.availability.soil_moisture_available) else None
+        
+        outlook_info = decide_outlook(
+            max_daily_rain=max_daily_rain,
+            max_temp=max_temp,
+            wind_gusts=context.current_weather.wind_gusts_kmh,
+            soil_moisture_available=context.availability.soil_moisture_available,
+            soil_percentile=soil_pct,
+            station_type="plains",
+        )
+        expected_outlook = outlook_info["outlook"]
+
         valid_endings = [
             "Overall, the agricultural outlook for this period is Favorable.",
+            "Overall, the agricultural outlook for this period is *Favorable*.",
             "Overall, the agricultural outlook for this period is Cautionary.",
+            "Overall, the agricultural outlook for this period is *Cautionary*.",
             "Overall, the agricultural outlook for this period is Unfavorable.",
+            "Overall, the agricultural outlook for this period is *Unfavorable*.",
         ]
         if paragraphs:
-            if not any(paragraphs[-1].endswith(e) for e in valid_endings):
-                errors.append("Last paragraph must end with a valid outlook sentence.")
+            last_p = paragraphs[-1]
+            if not any(last_p.endswith(e) for e in valid_endings):
+                errors.append("Last paragraph must end with exactly one of the valid outlook sentences.")
+            else:
+                required_endings = [
+                    f"Overall, the agricultural outlook for this period is {expected_outlook}.",
+                    f"Overall, the agricultural outlook for this period is *{expected_outlook}*.",
+                ]
+                if not any(last_p.endswith(e) for e in required_endings):
+                    errors.append(
+                        f"Outlook mismatch: model must end with the rule-decided outlook "
+                        f"('{expected_outlook}' or '*{expected_outlook}*'), but it used a different one."
+                    )
 
-        # ---- Paragraph 1 must not contain recommendation language (only for standard crops) ----
+        # ---- Paragraph 1 recommendation check (standard crops only) ----
         if paragraphs and not is_general:
             p1_lower = paragraphs[0].lower()
             forbidden_in_p1 = [
@@ -441,38 +786,36 @@ HALLUCINATION RULES:
                     )
                     break
 
-        # ---- Structural markdown detection ----
+        # ---- Structural markdown check ----
         for line in text.split("\n"):
             stripped = line.lstrip()
-            # Headings
             if stripped.startswith("#"):
                 errors.append("Response must not contain markdown headings (lines starting with #).")
                 break
         for line in text.split("\n"):
             stripped = line.lstrip()
-            # Bullet lists
             if re.match(r'^[-+•]\s', stripped):
                 errors.append("Response must not contain markdown bullet lists (-, +, •).")
                 break
         for line in text.split("\n"):
             stripped = line.lstrip()
-            # Numbered lists
             if re.match(r'^\d+\.\s', stripped):
                 errors.append("Response must not contain numbered lists (1., 2., ...).")
                 break
-        # Code fences
         if "```" in text:
             errors.append("Response must not contain code fences (```).")
-        # Tables
         if re.search(r'\|\s*[-:]+\s*\|', text):
             errors.append("Response must not contain markdown tables.")
-        # Double-asterisk bold (but allow single-asterisk emphasis)
         if "**" in text:
             errors.append("Response must not contain double-asterisk bold (**word**).")
         if "__" in text:
             errors.append("Response must not contain double-underscore bold (__word__).")
 
-        # ---- Soil moisture semantic grounding ----
+        # ---- Soil Moisture Wording Guard ----
+        if re.search(r'\bpercentile\b', text, re.IGNORECASE):
+            errors.append("Response must not contain the word 'percentile' — describe soil moisture with a category word only.")
+
+        # ---- Soil moisture semantic grounding check ----
         if context.soil_moisture_summary and context.availability.soil_moisture_available:
             sm_errors = self._validate_soil_moisture_semantics(text, context.soil_moisture_summary)
             errors.extend(sm_errors)
@@ -482,34 +825,17 @@ HALLUCINATION RULES:
     def _validate_soil_moisture_semantics(
         self,
         text: str,
-        sm,
+        sm: Any,
     ) -> List[str]:
-        """
-        Detect when the model incorrectly presents forecast_min or forecast_max as temporal
-        start/end values in the trend description.
-
-        Valid:
-          "from 58 to 82"    (start → end)
-          "ranging from 58 to 88"   (range description — OK)
-          "minimum of 58 and maximum of 88"  (extremes — OK)
-          "reaching a maximum of 88"  (peak — OK)
-
-        Invalid:
-          "increased from 58 to 88"  (temporal — max used as end)
-          "from 58 to 88" in temporal language context
-        """
         errors = []
         start = sm.start_percentile
         end = sm.end_percentile
         mn = sm.forecast_min_percentile
         mx = sm.forecast_max_percentile
 
-        # Only flag if min/max are actually different from start/end
-        # (no false positives when they coincide)
         if abs(mx - end) < 0.5 and abs(mn - start) < 0.5:
-            return []  # min==start and max==end — no ambiguity possible
+            return []
 
-        # Temporal trigger words that indicate a start→end change claim
         temporal_triggers = [
             r'increas(?:es?|ing|ed)\s+from',
             r'ros(?:e|es|ing)\s+from',
@@ -523,14 +849,12 @@ HALLUCINATION RULES:
             r'mov(?:es?|ing|ed)\s+from',
         ]
 
-        # Normalise text for number matching — strip asterisks, strip "percentile"
         normalised = text.lower()
-        normalised = re.sub(r'\*([0-9.]+)\*', r'\1', normalised)      # *58* → 58
-        normalised = re.sub(r'\bpercentile\b', '', normalised)          # remove the word
+        normalised = re.sub(r'\*([0-9.]+)\*', r'\1', normalised)
+        normalised = re.sub(r'\bpercentile\b', '', normalised)
         normalised = re.sub(r'\s+', ' ', normalised)
 
         def fmt_variants(val: float) -> List[str]:
-            """All expected text forms for a percentile value."""
             rounded = round(val, 1)
             integer = int(val) if val == int(val) else None
             forms = [f"{rounded}", f"{rounded:.0f}"]
@@ -544,7 +868,6 @@ HALLUCINATION RULES:
         end_variants = fmt_variants(end)
 
         def number_follows(text_segment: str, variants: List[str]) -> Optional[str]:
-            """Check if any variant appears shortly after a position in text."""
             for v in variants:
                 pattern = rf'\b{re.escape(v)}\b'
                 if re.search(pattern, text_segment):
@@ -554,13 +877,10 @@ HALLUCINATION RULES:
         for trigger_pattern in temporal_triggers:
             for m in re.finditer(trigger_pattern, normalised):
                 after = normalised[m.start(): m.start() + 80]
-
-                # Find what number appears as start in this phrase
                 found_start = number_follows(after, mn_variants + start_variants)
                 if not found_start:
                     continue
 
-                # Find what number appears as end after the "to"
                 to_match = re.search(r'\bto\b', after)
                 if not to_match:
                     continue
@@ -569,7 +889,6 @@ HALLUCINATION RULES:
                 if not found_end:
                     continue
 
-                # Check if this is a min→max claim (bad) vs start→end claim (good)
                 start_is_min = found_start in mn_variants and found_start not in end_variants
                 end_is_max = found_end in mx_variants and found_end not in end_variants
 
@@ -579,7 +898,7 @@ HALLUCINATION RULES:
                         f"to maximum ({mx:.1f}) as a temporal start→end change. "
                         f"Use start percentile ({start:.1f}) → end percentile ({end:.1f}) instead."
                     )
-                    return errors  # one error is enough
+                    return errors
 
         return errors
 
@@ -592,7 +911,6 @@ HALLUCINATION RULES:
         """Convert any date string (YYYY-MM-DD or ISO datetime) to DD/MM/YYYY."""
         if not date_str:
             return ""
-        # Normalise: take first 10 chars to handle ISO like 2026-07-07T00:00:00.000Z
         clean = date_str[:10]
         try:
             dt = datetime.strptime(clean, "%Y-%m-%d")
@@ -603,8 +921,6 @@ HALLUCINATION RULES:
     def _get_mock_advisory(self, context: AdvisoryContext) -> AdvisoryResponse:
         """
         Development/testing fallback ONLY.
-        Never called in production (production path raises AdvisoryGenerationError instead).
-        Contains NO agricultural recommendations.
         """
         if not getattr(settings, "ENABLE_MOCK_ADVISORY", False):
             raise AdvisoryGenerationError(
@@ -614,6 +930,7 @@ HALLUCINATION RULES:
 
         loc = context.location
         crop = context.crop_context.crop_name
+        days = context.forecast_summary.forecast_days if context.forecast_summary else 10
         if context.forecast_summary:
             start = self._fmt_date(context.forecast_summary.forecast_start_date)
             end = self._fmt_date(context.forecast_summary.forecast_end_date)
@@ -621,24 +938,24 @@ HALLUCINATION RULES:
             tmin = context.forecast_summary.minimum_temperature_c
             tmax = context.forecast_summary.maximum_temperature_c
         else:
-            from datetime import timedelta
             today = datetime.now()
             start = today.strftime("%d/%m/%Y")
             end = (today + timedelta(days=9)).strftime("%d/%m/%Y")
             rain, tmin, tmax = 25.0, 23.0, 36.0
 
         p1 = (
-            f"From {start} to {end}, the region of {loc.name}, {loc.district}, {loc.state} "
+            f"Over the next {days} days, the region of {loc.name}, {loc.district}, {loc.state} "
             f"is expected to experience a cumulative rainfall of *{rain:.0f} mm*, "
             f"with temperature ranging from *{tmin:.0f} °C* to *{tmax:.0f} °C*. "
             f"These conditions are broadly characteristic of the current agricultural season "
             f"and will have a moderate impact on {crop} crops in the field."
         )
-        # Paragraph 2 contains no agricultural recommendations — only outlook
         p2 = (
-            f"No ICAR knowledge was retrieved for {crop} in this configuration. "
-            f"Farmers are advised to consult their local Krishi Vigyan Kendra (KVK) "
-            f"for crop-specific guidance applicable to current conditions. "
+            f"Consult local agricultural extensions for crop care. Maintain optimal soil conditions, "
+            f"monitor crop health regularly, and ensure adequate field drainage."
+        )
+        p3 = (
+            f"Farmers should monitor local weather closely. "
             f"Overall, the agricultural outlook for this period is Cautionary."
         )
-        return AdvisoryResponse(advisory_summary=f"{p1}\n\n{p2}")
+        return AdvisoryResponse(advisory_summary=f"{p1}\n\n{p2}\n\n{p3}")
