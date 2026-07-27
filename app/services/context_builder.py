@@ -86,7 +86,7 @@ class AdvisoryContextBuilder:
                 and fd.soil_moisture.success
                 and bool(fd.soil_moisture.soil_moisture)
             ),
-            lightning_available=False,
+            lightning_available=req.weatherData.lightning is not None,
             calendar_available=(
                 req.calendarData.success
                 and bool(req.calendarData.calendar)
@@ -296,6 +296,13 @@ class AdvisoryContextBuilder:
         if heavy_days > 0:
             pattern += f" (with {heavy_days} heavy rain day{'s' if heavy_days > 1 else ''})"
 
+        # Find the day with maximum daily rainfall
+        max_rain_day = days[0]
+        for d in days:
+            if d.pcp_corrected > max_rain_day.pcp_corrected:
+                max_rain_day = d
+        max_daily_date = max_rain_day.date
+
         # Deterministic fingerprint for caching (rounded to 1 dp)
         fingerprint_str = "|".join(f"{round(p, 1)}" for p in pcp)
         fingerprint = hashlib.sha256(fingerprint_str.encode()).hexdigest()[:12]
@@ -307,6 +314,7 @@ class AdvisoryContextBuilder:
             total_rainfall_mm=total_rain,
             average_daily_rainfall_mm=avg_daily,
             maximum_daily_rainfall_mm=max_daily,
+            maximum_daily_rainfall_date=max_daily_date,
             rainy_days=rainy,
             dry_days=len(days) - rainy,
             minimum_temperature_c=round(min(tmin), 1),

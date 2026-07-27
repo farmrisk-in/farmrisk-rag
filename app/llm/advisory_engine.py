@@ -395,6 +395,46 @@ class AdvisoryEngine:
             f"Temp range: {wa.api_min_temp_c:.1f} °C – {wa.api_max_temp_c:.1f} °C"
         )
 
+        # ---- Peak rainfall day: formatted date + relative day offset ----
+        max_daily_rain_date = ctx.forecast_summary.maximum_daily_rainfall_date if ctx.forecast_summary else None
+        forecast_start_date = ctx.forecast_summary.forecast_start_date if ctx.forecast_summary else None
+
+        peak_day_fmt = self._fmt_date(max_daily_rain_date) if max_daily_rain_date else ""
+        peak_day_offset = None
+        if max_daily_rain_date and forecast_start_date:
+            try:
+                _pk = datetime.strptime(max_daily_rain_date[:10], "%Y-%m-%d")
+                _st = datetime.strptime(forecast_start_date[:10], "%Y-%m-%d")
+                peak_day_offset = (_pk - _st).days
+            except Exception:
+                peak_day_offset = None
+
+        if peak_day_fmt:
+            if peak_day_offset is not None and peak_day_offset > 1:
+                peak_timing_phrase = f"on {peak_day_fmt} (after about {peak_day_offset} days)"
+            elif peak_day_offset == 1:
+                peak_timing_phrase = f"on {peak_day_fmt} (tomorrow)"
+            elif peak_day_offset == 0:
+                peak_timing_phrase = f"on {peak_day_fmt} (today)"
+            else:
+                peak_timing_phrase = f"on {peak_day_fmt}"
+        else:
+            peak_timing_phrase = None
+
+        # Determine rain word for the peak daily rain
+        if max_daily_rain >= 204.4:
+            rain_word = "extremely heavy"
+        elif max_daily_rain >= 115.6:
+            rain_word = "very heavy"
+        elif max_daily_rain >= 64.5:
+            rain_word = "heavy"
+        elif max_daily_rain >= 15.6:
+            rain_word = "moderate"
+        elif max_daily_rain >= 0.1:
+            rain_word = "light"
+        else:
+            rain_word = "no"
+
         # Rule-based outlook (IMD-grounded, deterministic)
         soil_pct_for_outlook = ctx.soil_moisture_summary.forecast_max_percentile if (ctx.soil_moisture_summary and av.soil_moisture_available) else None
         outlook_result = decide_outlook(
@@ -491,8 +531,14 @@ class AdvisoryEngine:
                 "- Rainfall: state the total rainfall over the whole period as a plain sum "
                 f"(*{total_rainfall:.1f} mm* over *{rainy_days}* rainy days). Then describe the WETTEST SINGLE DAY "
                 "as an upcoming EVENT, not a statistic, and you MUST say WHICH DAY it is. "
-                "If no date for the wettest day is available, say \"on the wettest day\" and do NOT invent a date. "
-                "Do NOT write it as \"your peak rainfall will be X\".\n"
+                + (
+                    f"The wettest day is {peak_timing_phrase} — phrase it like \"a {rain_word} rain of around "
+                    f"*{max_daily_rain:.1f} mm* is expected {peak_timing_phrase}\", using the daily rainfall "
+                    "category table below for the wet-word. "
+                    if peak_timing_phrase else
+                    "If no date for the wettest day is available, say \"on the wettest day\" and do NOT invent a date. "
+                )
+                + "Do NOT write it as \"your peak rainfall will be X\".\n"
                 "- Pair the rain with the matching action (drainage for heavy days, water conservation for light rain).\n"
                 "- Mention the temperature/heat and gusty-wind situation plainly, and if winds are strong warn that "
                 "spraying will drift and be wasted — so postpone spray/fertilizer.\n"
@@ -540,7 +586,14 @@ class AdvisoryEngine:
                 "- Name the location (village, district, state) as a place, not as \"farmers in\".\n"
                 "- State total rainfall as a plain sum (*{total_rainfall:.1f} mm* over *{rainy_days}* rainy days).\n"
                 "- Describe the WETTEST SINGLE DAY as an event and you MUST say WHICH DAY it is. "
-                "If no date for the wettest day is available, say \"on the wettest day\" and do NOT invent one.\n"
+                + (
+                    f"The wettest day is {peak_timing_phrase} — phrase it like \"a {rain_word} rain of around "
+                    f"*{max_daily_rain:.1f} mm* is expected {peak_timing_phrase}\", using the DAILY rainfall "
+                    "category table below for the wet-word. "
+                    if peak_timing_phrase else
+                    "If no date for the wettest day is available, say \"on the wettest day\" and do NOT invent one. "
+                )
+                + "\n"
                 "- Cover temperature range and heat-stress implications, and current observed conditions "
                 "(humidity, wind speed, gusts, cloud cover) in plain professional terms.\n"
                 + (
@@ -728,6 +781,32 @@ HALLUCINATION RULES:
 
             if not prefix_ok and expected_prefix:
                 errors.append(f"Paragraph 1 must start with '{expected_prefix}'.")
+
+        # ---- Peak Rainfall Date/Day Check ----
+        max_daily_rain_date = context.forecast_summary.maximum_daily_rainfall_date if context.forecast_summary else None
+        if max_daily_rain_date:
+            peak_date_formatted = self._fmt_date(max_daily_rain_date)
+            has_date = peak_date_formatted in text
+            has_relative = False
+            start_date = context.forecast_summary.forecast_start_date if context.forecast_summary else None
+            if start_date:
+                try:
+                    _pk = datetime.strptime(max_daily_rain_date[:10], "%Y-%m-%d")
+                    _st = datetime.strptime(start_date[:10], "%Y-%m-%d")
+                    offset = (_pk - _st).days
+                    if offset == 0 and "today" in text.lower():
+                        has_relative = True
+                    elif offset == 1 and "tomorrow" in text.lower():
+                        has_relative = True
+                    elif offset > 1 and f"after about {offset} days" in text.lower():
+                        has_relative = True
+                except Exception:
+                    pass
+
+            if not (has_date or has_relative or "wettest day" in text.lower()):
+                errors.append(
+                    f"Response must mention the date/day of maximum expected rainfall ({peak_date_formatted})."
+                )
 
         # ---- Expected outlook determination & validation ----
         max_daily_rain = context.forecast_summary.maximum_daily_rainfall_mm if context.forecast_summary else context.weather_api_summary.api_total_rainfall_mm
