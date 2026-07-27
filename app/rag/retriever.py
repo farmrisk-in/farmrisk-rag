@@ -65,6 +65,8 @@ class AdvisoryRetriever:
             cid = str(chunk.get("id", ""))
             if cid and cid not in collected:
                 collected[cid] = self._normalise(chunk, stage=1)
+                if len(collected) >= top_k:
+                    break
 
         logger.info(f"RAG Stage 1 (strict): {len(stage1)} raw → {len(collected)} unique")
 

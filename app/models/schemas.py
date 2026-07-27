@@ -234,6 +234,7 @@ class ForecastSummary(BaseModel):
     total_rainfall_mm: float
     average_daily_rainfall_mm: float
     maximum_daily_rainfall_mm: float
+    maximum_daily_rainfall_date: Optional[str] = None
     rainy_days: int
     dry_days: int
     minimum_temperature_c: float
