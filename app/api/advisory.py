@@ -22,6 +22,7 @@ from app.rag.retriever import AdvisoryRetriever, RetrievalContext
 from app.llm.advisory_engine import AdvisoryEngine, InsufficientKnowledgeError, AdvisoryGenerationError
 from app.llm.providers import get_primary_provider, get_fallback_provider
 from app.services.translation import TranslationService
+from app.services.irrigation import compute_irrigation_insight_for_request
 from app.core.caching import cache_manager, advisory_cache, translation_cache, lock_manager
 from app.core.logging import logger
 
@@ -74,6 +75,15 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
         )
 
         # ----------------------------------------------------------------
+        # Irrigation insight (deterministic, independent of the LLM)
+        # Uses the existing decision engine on the request's daily series.
+        # ----------------------------------------------------------------
+        irrigation_insight = compute_irrigation_insight_for_request(
+            request, crop_stage=context.crop_context.crop_stage
+        )
+        logger.info(f"Irrigation insight: {'generated' if irrigation_insight else 'not available'}")
+
+        # ----------------------------------------------------------------
         # Step 2: Determine cache key parameters
         # ----------------------------------------------------------------
         fingerprint = (
@@ -111,6 +121,7 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
                 remaining_ttl = advisory_cache.ttl(advisory_key)
                 logger.info(f"Cache TTL remaining: {remaining_ttl}")
                 advisory_obj = AdvisoryResponse(**english_advisory)
+                advisory_obj.irrigation_insight = irrigation_insight
             else:
                 logger.info("Advisory Cache MISS")
                 logger.info("Lock acquired")
@@ -176,6 +187,7 @@ async def generate_crop_advisory(request: AIAdvisoryRequest):
                     rag_chunks=rag_chunks,
                 )
                 advisory_obj.sources = rag_chunks
+                advisory_obj.irrigation_insight = irrigation_insight
                 logger.info("Generation finished")
 
                 # ------------------------------------------------------------

@@ -25,6 +25,9 @@ class TranslationService:
 
         # Step 1: Extract and flatten text fields to translate
         texts_to_translate = [advisory.advisory_summary]
+        has_insight = bool(advisory.irrigation_insight)
+        if has_insight:
+            texts_to_translate.append(advisory.irrigation_insight)
         
         # Step 2: Batch translate using providers
         translated_texts, provider = await self._batch_translate(texts_to_translate, target_language)
@@ -43,6 +46,8 @@ class TranslationService:
             translated_data = {
                 "advisory_summary": translated_texts[0]
             }
+            if has_insight and len(translated_texts) > 1:
+                translated_data["irrigation_insight"] = translated_texts[1]
             if advisory.sources is not None:
                 translated_data["sources"] = advisory.sources
             return TranslationResult(
