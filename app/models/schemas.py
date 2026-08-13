@@ -310,6 +310,9 @@ class AdvisoryResponse(BaseModel):
     advisory_summary: str = Field(
         ..., description="Two-paragraph plain-text agrometeorological advisory."
     )
+    irrigation_insight: Optional[str] = Field(
+        None, description="Short farmer-facing irrigation insight shown above the Soil Moisture Profile."
+    )
     sources: Optional[List[Dict[str, Any]]] = Field(
         None, description="Retrieved documents/sources used for generating this advisory."
     )
