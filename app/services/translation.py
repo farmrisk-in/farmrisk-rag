@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Dict, Any, List, Optional, Tuple
 from app.core.config import settings
 from app.models.schemas import AdvisoryResponse, TranslationResult
@@ -64,6 +65,126 @@ class TranslationService:
             )
 
 
+    async def translate_pest_disease_card(self, card: Dict[str, Any], target_language: str) -> TranslationResult:
+        """Translate the human-readable fields of a Pest & Disease card dict.
+
+        Only the display strings are translated (risk band, summary, crop
+        identity, potential pest/disease names, action titles/details).
+        Structured data (score, driver, sources, crop_id, is_general, internal
+        warnings) is preserved as-is, matching the advisory flow.
+
+        Highlight terms (crop name/stage/season, potential names) are embedded
+        into the summary/details as @@N@@ placeholders *before* translation so
+        the translated text keeps them verbatim; the standalone translated term
+        is then substituted back in. This guarantees the exact translated term
+        the frontend highlights appears inside the translated sentence, despite
+        the model otherwise inflecting it (e.g. ફૂગના vs ફૂગનો).
+        """
+        if not target_language or target_language.lower().strip() in ("en", "english"):
+            return TranslationResult(data=card, translated=True, provider=None)
+
+        # Step 1: Ordered list of highlight terms (must match what the frontend
+        #   highlights: crop_name, crop_stage, season, then potential items).
+        terms: List[str] = []
+        for key in ("crop_name", "crop_stage", "season"):
+            val = card.get(key)
+            if val:
+                terms.append(str(val))
+        potential = [str(p) for p in (card.get("potential") or []) if str(p).strip()]
+        terms += potential
+
+        actions = card.get("actions") or []
+        action_dicts = [a for a in actions if isinstance(a, dict)]
+
+        # Step 2: Embed @@N@@ placeholders into summary and action details.
+        summary_embedded = self._embed_highlight_terms(str(card.get("summary", "")), terms)
+        detail_embedded = [
+            self._embed_highlight_terms(str(a.get("detail", "")), terms)
+            for a in action_dicts
+        ]
+        titles = [str(a.get("title", "")) for a in action_dicts]
+
+        # Step 3: Flatten the texts to translate (stable order).
+        texts_to_translate: List[str] = [str(card.get("risk", "")), summary_embedded]
+        texts_to_translate += terms
+        texts_to_translate += titles
+        texts_to_translate += detail_embedded
+
+        # Step 4: Batch translate using providers
+        translated_texts, provider = await self._batch_translate(texts_to_translate, target_language)
+        if translated_texts is None or len(translated_texts) != len(texts_to_translate):
+            logger.warning("Pest & Disease card translation failed. Returning original English card.")
+            return TranslationResult(data=card, translated=False, provider=None)
+
+        # Step 5: Reconstruct the card dict, replacing only the text fields.
+        try:
+            idx = 0
+            trans_risk = translated_texts[idx]; idx += 1
+            trans_summary = translated_texts[idx]; idx += 1
+            trans_terms = translated_texts[idx:idx + len(terms)]; idx += len(terms)
+            trans_titles = translated_texts[idx:idx + len(titles)]; idx += len(titles)
+            trans_details = translated_texts[idx:idx + len(detail_embedded)]; idx += len(detail_embedded)
+
+            def substitute(text: str) -> str:
+                for i, term in enumerate(terms):
+                    text = text.replace(f"@@{i}@@", trans_terms[i])
+                return text
+
+            translated_data = dict(card)
+            translated_data["risk"] = trans_risk
+            translated_data["summary"] = substitute(trans_summary)
+
+            pos = 0
+            for key in ("crop_name", "crop_stage", "season"):
+                if card.get(key):
+                    translated_data[key] = trans_terms[pos]; pos += 1
+            translated_data["potential"] = trans_terms[pos:pos + len(potential)]
+
+            new_actions = []
+            ai = 0
+            for a in actions:
+                if not isinstance(a, dict):
+                    new_actions.append(a)
+                    continue
+                na = dict(a)
+                na["title"] = trans_titles[ai]
+                na["detail"] = substitute(trans_details[ai])
+                ai += 1
+                new_actions.append(na)
+            translated_data["actions"] = new_actions
+            return TranslationResult(data=translated_data, translated=True, provider=provider)
+        except Exception as e:
+            logger.error(f"Error reconstructing pest card translation: {e}")
+            return TranslationResult(data=card, translated=False, provider=None)
+
+    def _embed_highlight_terms(self, text: str, terms: List[str]) -> str:
+        """Replace English highlight terms with @@N@@ placeholders.
+
+        Longest terms match first and matching is case-insensitive and
+        whole-word (ASCII), so an inflected English form in the summary still
+        maps to its placeholder. The frontend highlights these exact translated
+        strings, so preserving them verbatim is what keeps highlighting working
+        in every language.
+        """
+        if not text or not terms:
+            return text
+        ordered = sorted(terms, key=len, reverse=True)
+        pattern = (
+            r"(?<![A-Za-z0-9_])(?:"
+            + "|".join(re.escape(t) for t in ordered)
+            + r")(?![A-Za-z0-9_])"
+        )
+
+        def repl(match: re.Match) -> str:
+            word = match.group(0)
+            for i, term in enumerate(terms):
+                if term.lower() == word.lower():
+                    return f"@@{i}@@"
+            return word
+
+        return re.sub(pattern, repl, text, flags=re.IGNORECASE)
+
+
     async def _batch_translate(self, texts: List[str], target_language: str) -> Tuple[Optional[List[str]], Optional[str]]:
         # Check if settings allow actual provider runs
         # If no keys are set, fallback to mock translator
@@ -85,6 +206,7 @@ RULES:
 3. Translate the meaning accurately. Do not summarize, rephrase, rewrite, or add any formatting.
 4. Keep technical agricultural terms accurate in the target language.
 5. Crucially, preserve paragraph separation (e.g. double newlines), exact wording, meaning, and sentence order. Do not regenerate the advisory, do not summarize, and do not rewrite.
+6. Preserve every placeholder token of the form @@N@@ (where N is a number) EXACTLY as-is — same position, same characters, inside the translated string. Never translate, drop, reorder, split, or add spaces around them. They are markers the caller substitutes afterwards.
 
 
 Input list:
