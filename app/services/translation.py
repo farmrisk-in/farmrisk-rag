@@ -157,6 +157,38 @@ class TranslationService:
             logger.error(f"Error reconstructing pest card translation: {e}")
             return TranslationResult(data=card, translated=False, provider=None)
 
+    async def translate_what_to_do(self, items: List[Dict[str, Any]], target_language: str) -> "Tuple[List[Dict[str, Any]], bool]":
+        """Translate the title/hint of the "What To Do Today" recommendations.
+
+        Only the display strings (title, hint) are translated; structured fields
+        (category, severity, sources, crop_name, is_general) are preserved as-is.
+        Returns (items, translated) — on failure the original English items are
+        returned unchanged so the card still renders.
+        """
+        if not target_language or target_language.lower().strip() in ("en", "english"):
+            return items, True
+
+        texts_to_translate: List[str] = []
+        for it in items:
+            texts_to_translate.append(str(it.get("title", "")))
+            texts_to_translate.append(str(it.get("hint", "")))
+
+        if not texts_to_translate:
+            return items, True
+
+        translated_texts, _ = await self._batch_translate(texts_to_translate, target_language)
+        if translated_texts is None or len(translated_texts) != len(texts_to_translate):
+            logger.warning("What-to-do translation failed. Returning original English items.")
+            return items, False
+
+        out = []
+        for i, it in enumerate(items):
+            na = dict(it)
+            na["title"] = translated_texts[i * 2]
+            na["hint"] = translated_texts[i * 2 + 1]
+            out.append(na)
+        return out, True
+
     def _embed_highlight_terms(self, text: str, terms: List[str]) -> str:
         """Replace English highlight terms with @@N@@ placeholders.
 
