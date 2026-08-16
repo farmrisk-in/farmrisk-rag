@@ -359,6 +359,7 @@ def build_irrigation_insight(
     start_date: str = "",
     horizon_days: Optional[int] = None,
     reference_date: Optional[str] = None,
+    decision: Optional[Dict[str, Any]] = None,
 ) -> str:
     """Render the deterministic farmer-facing irrigation insight.
 
@@ -379,6 +380,11 @@ def build_irrigation_insight(
     For the no-irrigation branches (4 & 5) the duration is phrased by
     _irr_duration_phrase: > 7 days -> "at least a week", <= 7 -> "the next N days".
 
+    `decision` lets a caller that already computed the decision (see
+    compute_irrigation_decision_and_insight) reuse it and avoid a second
+    deterministic walk. When omitted the decision is computed here exactly as
+    before, so existing callers/tests are unaffected.
+
     Returns "" when the decision is unavailable (callers map to null).
     Numbers / percentiles / w_frac are never emitted.
     """
@@ -387,13 +393,14 @@ def build_irrigation_insight(
 
     ref = reference_date or start_date
 
-    decision = decide_irrigation(
-        sm_series,
-        rain_series,
-        sensitivity=sensitivity,
-        start_date=start_date,
-        horizon_days=horizon_days,
-    )
+    if decision is None:
+        decision = decide_irrigation(
+            sm_series,
+            rain_series,
+            sensitivity=sensitivity,
+            start_date=start_date,
+            horizon_days=horizon_days,
+        )
     if not decision.get("available"):
         return ""
 
@@ -450,11 +457,16 @@ def build_irrigation_insight(
     )
 
 
-def compute_irrigation_insight_for_request(request: Any, crop_stage: str = "") -> Optional[str]:
-    """Top-level helper used by the advisory endpoint.
+def compute_irrigation_decision_and_insight(request: Any, crop_stage: str = "") -> Optional[Dict[str, Any]]:
+    """One-shot: compute the irrigation decision ONCE and render its insight
+    from that same decision (no second deterministic walk).
 
-    Returns the ready-to-send string, or None when the required data (soil
-    moisture / rainfall series) is unavailable so the frontend hides the message.
+    Returns {'decision': <decide_irrigation dict>, 'insight': str | None} or
+    None when the required data (soil moisture / rainfall series) is unavailable.
+
+    Callers that need BOTH the decision (for severity/audit) and the farmer-facing
+    line (for display) should use this instead of calling decide_irrigation and
+    build_irrigation_insight separately.
     """
     from app.models.schemas import AIAdvisoryRequest  # local import to avoid cycles
 
@@ -489,15 +501,47 @@ def compute_irrigation_insight_for_request(request: Any, crop_stage: str = "") -
     if not reference_date:
         reference_date = series["start_date"]
 
-    # TEMPORARY DEV LOGGING — remove after verification.
-    # Recomputes the decision (O(n), deterministic) so we can log the audit
-    # fields the user asked for. Never changes the verdict.
     decision = decide_irrigation(
         series["sm_series"],
         series["rain_series"],
         sensitivity=sensitivity,
         start_date=series["start_date"],
     )
+    if not decision.get("available"):
+        return None
+
+    insight = build_irrigation_insight(
+        sm_series=series["sm_series"],
+        rain_series=series["rain_series"],
+        sensitivity=sensitivity,
+        start_date=series["start_date"],
+        reference_date=reference_date,
+        decision=decision,
+    )
+    return {
+        "decision": decision,
+        "insight": insight or None,
+        "sensitivity": sensitivity,
+        "reference_date": reference_date,
+    }
+
+
+def compute_irrigation_insight_for_request(request: Any, crop_stage: str = "") -> Optional[str]:
+    """Top-level helper used by the advisory endpoint.
+
+    Returns the ready-to-send string, or None when the required data (soil
+    moisture / rainfall series) is unavailable so the frontend hides the message.
+    """
+    result = compute_irrigation_decision_and_insight(request, crop_stage)
+    if not result:
+        return None
+
+    decision = result["decision"]
+    sensitivity = result["sensitivity"]
+    reference_date = result["reference_date"]
+
+    # TEMPORARY DEV LOGGING — remove after verification.
+    # Logs the audit fields the user asked for. Never changes the verdict.
     logger.info(
         "Irrigation insight | decision=%s reason=%s next_date=%s days_until=%s "
         "soil_now=%s rain_why=%r sensitivity=%s ref_today=%s",
@@ -511,12 +555,6 @@ def compute_irrigation_insight_for_request(request: Any, crop_stage: str = "") -
         reference_date,
     )
 
-    insight = build_irrigation_insight(
-        sm_series=series["sm_series"],
-        rain_series=series["rain_series"],
-        sensitivity=sensitivity,
-        start_date=series["start_date"],
-        reference_date=reference_date,
-    )
+    insight = result["insight"]
     logger.info("Generated irrigation insight: %r", insight)
-    return insight or None
+    return insight

@@ -229,8 +229,8 @@ Return a JSON object (and NOTHING else — no markdown, no code fences) with EXA
   "summary": "<two to three sentences (approximately 30-50 words) on WHY risk is elevated: tie humidity/warmth/wetness to the pest or disease type, and explain what this means for the crop right now. Do not repeat the risk band word.{summary_crop_hint}>",
   "potential": ["<named pest or disease 1>", "<named pest or disease 2>"],
   "actions": [
-    {{"title": "<2-4 word action, imperative>", "detail": "<a SINGLE short sentence of 12-16 words (never more than 18): what to do and, when useful, WHY it helps — tie the benefit to the current weather/soil conditions. Keep it concise and specific, name the relevant pest/disease/crop-stage only when it matters>", "cites": [<chunk numbers that support this action, e.g. 1>]}},
-    {{"title": "<2-4 word action>", "detail": "<a SINGLE short sentence of 12-16 words (never more than 18)>", "cites": [<chunk numbers>]}}
+    {{"priority": 1, "title": "<2-4 word action, imperative>", "detail": "<a SINGLE short sentence of 12-16 words (never more than 18): what to do and, when useful, WHY it helps — tie the benefit to the current weather/soil conditions. Keep it concise and specific, name the relevant pest/disease/crop-stage only when it matters>", "cites": [<chunk numbers that support this action, e.g. 1>]}},
+    {{"priority": 2, "title": "<2-4 word action>", "detail": "<a SINGLE short sentence of 12-16 words (never more than 18)>", "cites": [<chunk numbers>]}}
   ],
   "cites": [<chunk numbers that back the named pests/diseases in "potential">]
 }}
@@ -239,6 +239,7 @@ RULES
 - "risk" MUST be exactly "{band}".
 - "potential": 1-3 items. Use ONLY names supported by the retrieved knowledge; if none, use the general category (e.g. "Fungal disease", "Sucking pests").
 - "actions": 2-3 items; return 3 whenever the retrieved knowledge supports at least 3 distinct, grounded recommendations, otherwise return only the 2-3 you can genuinely support. Each is a concrete scouting or cultural/management step. Prefer non-chemical actions (scout undersides, improve airflow, remove weeds, ensure drainage). Only mention a chemical/pesticide if it is explicitly in the retrieved knowledge.
+- PRIORITY ORDERING: assign "priority" 1 to the SINGLE most important/urgent action, 2 to the next, and so on. List the actions in that same order — priority 1 first. The priority drives which action the dashboard surfaces first, so make it genuinely reflect urgency under the current conditions.
 - Each action "detail" must explain WHY the step helps (its benefit under the current weather/soil conditions), not just what to do. Do not invent pesticides, chemicals, doses, diseases, pests, or treatments.
 - WORD CAP: every action "detail" MUST be a SINGLE short sentence of 12-16 words and MUST NOT exceed 18 words. One full sentence only — no periods mid-detail, no second sentence. The "title" does not count toward this limit.
 - CITATIONS: every "cites" value is a list of the [Chunk N] numbers shown above whose text supports that item. Cite ONLY chunks that actually contain the pest/action. If an item is a generic weather-driven category or a general cultural step not taken from any chunk, use an empty list [].
@@ -391,15 +392,23 @@ def _validate_card(
 
     actions = data.get("actions", [])
     fixed_actions = []
-    for a in actions[:3]:
+    for i, a in enumerate(actions[:3]):
         if isinstance(a, dict):
             title = str(a.get("title", "")).strip()
             detail = str(a.get("detail", "")).strip()
             cite_ids = _resolve_cites(a.get("cites"), rag_chunks)
+            raw_priority = a.get("priority", i + 1)
         else:
             title, detail, cite_ids = str(a).strip(), "", []
+            raw_priority = i + 1
         if title:
+            try:
+                priority = max(1, int(raw_priority))
+            except (TypeError, ValueError):
+                errors.append(f"action '{title}' has non-numeric priority; defaulted to position")
+                priority = i + 1
             fixed_actions.append({
+                "priority": priority,
                 "title": title,
                 "detail": _cap_detail_words(detail),
                 "sources": [_chunk_source(rag_chunks[i - 1]) for i in cite_ids],
@@ -407,14 +416,24 @@ def _validate_card(
     if len(fixed_actions) < 2:
         # sensible generic fallbacks matching the mock-up (no sources — generic)
         defaults = [
-            {"title": "Scout daily", "detail": "Inspect leaf undersides and stem bases for early signs of feeding damage or pest activity.", "sources": []},
-            {"title": "Improve airflow", "detail": "Remove weeds between rows to open the canopy, lower humidity, and reduce conditions that favour disease.", "sources": []},
+            {"priority": 1, "title": "Scout daily", "detail": "Inspect leaf undersides and stem bases for early signs of feeding damage or pest activity.", "sources": []},
+            {"priority": 2, "title": "Improve airflow", "detail": "Remove weeds between rows to open the canopy, lower humidity, and reduce conditions that favour disease.", "sources": []},
         ]
         for d in defaults:
             if len(fixed_actions) >= 2:
                 break
             fixed_actions.append(d)
         errors.append("fewer than 2 actions; padded with defaults")
+
+    # Deterministic ranking: priority ascending, stable so tied priorities keep
+    # the order the model emitted them in.
+    was_ordered = all(
+        fixed_actions[i]["priority"] <= fixed_actions[i + 1]["priority"]
+        for i in range(len(fixed_actions) - 1)
+    )
+    fixed_actions.sort(key=lambda a: a["priority"])
+    if not was_ordered:
+        errors.append("actions not in priority order; sorted by priority")
     data["actions"] = fixed_actions[:3]
 
     # ---- Provenance ----
@@ -515,8 +534,8 @@ async def build_pest_disease_card(
             "summary": f"{driver.capitalize()}.",
             "potential": ["Fungal disease", "Sucking pests"],
             "actions": [
-                {"title": "Scout daily", "detail": "Inspect leaf undersides and stem bases for early signs of feeding damage or pest activity.", "sources": []},
-                {"title": "Improve airflow", "detail": "Remove weeds between rows to open the canopy, lower humidity, and reduce conditions that favour disease.", "sources": []},
+                {"priority": 1, "title": "Scout daily", "detail": "Inspect leaf undersides and stem bases for early signs of feeding damage or pest activity.", "sources": []},
+                {"priority": 2, "title": "Improve airflow", "detail": "Remove weeds between rows to open the canopy, lower humidity, and reduce conditions that favour disease.", "sources": []},
             ],
             "potential_sources": [],
             "sources": [],
