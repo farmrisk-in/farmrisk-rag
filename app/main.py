@@ -3,8 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.logging import logger
-from app.api.location import router as location_router, resolver as location_resolver
-from app.api.advisory import router as advisory_router
+from app.api import api_router, location_resolver
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,20 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount Routers
-app.include_router(location_router)
-app.include_router(advisory_router)
-
-@app.get("/")
-@app.head("/")
-async def root():
-    """Root endpoint for Hugging Face health checking."""
-    return {"message": "FarmRisk API is running. Visit /docs for documentation.", "status": "healthy"}
-
-@app.get("/health", tags=["Health"])
-@app.head("/health", tags=["Health"])
-async def health_check():
-    """Simple API health check endpoint."""
-    return {"status": "healthy", "environment": settings.APP_ENV}
+# Mount all modular feature routers
+app.include_router(api_router)
 
 

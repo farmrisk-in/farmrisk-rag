@@ -83,6 +83,55 @@ FarmRisk is a production-grade agro-meteorological advisory and decision-support
 
 ---
 
+## 📂 Modular Project Structure
+
+The API is architected so that **every feature and endpoint lives in its own dedicated file**. Adding or removing a feature requires modifying only its dedicated file and registering or unregistering it in the router index:
+
+```
+app/
+├── api/
+│   ├── __init__.py                # Master API Gateway (mounts all feature routers)
+│   ├── health.py                  # Root ('/') & Health ('/health') endpoints
+│   ├── location.py                # Location search ('/api/location/search')
+│   └── advisory/
+│       ├── __init__.py            # Advisory Router (aggregates advisory sub-features)
+│       ├── dependencies.py        # Shared singletons, retriever & pest card service
+│       ├── overview.py            # POST /api/advisory (canonical crop advisory)
+│       ├── weather_summary.py     # POST /api/advisory/weather-summary (24h summary)
+│       ├── pest_card.py           # POST /api/advisory/pest-card (pest & disease card)
+│       └── what_to_do.py          # POST /api/advisory/what-to-do (daily actions)
+├── core/
+│   ├── caching.py                 # Redis / In-Memory cache & Async LockManager
+│   ├── config.py                  # Pydantic Settings & Environment Variables
+│   └── logging.py                 # Structlog & formatted logging
+├── database/
+│   ├── client.py                  # Supabase client singleton
+│   └── pgvector.py                # Supabase RPC pgvector similarity search
+├── llm/
+│   ├── advisory_engine.py         # Canonical English advisory prompt & validation
+│   └── providers.py               # Gemini (Primary) & Groq (Fallback) providers
+├── models/
+│   └── schemas.py                 # Pydantic request/response schemas
+├── rag/
+│   └── retriever.py               # 3-Stage weather-aware vector retriever
+└── services/
+    ├── context_builder.py         # Deterministic aggregation of frontend payload
+    ├── irrigation.py              # Hydrological soil-moisture irrigation engine
+    ├── location.py                # Nominatim OSM geocoding & state normalization
+    ├── pest_disease_card.py       # Heuristic pest risk index & card builder
+    ├── weather_todos.py           # IMD operational weather warning actions
+    └── what_to_do.py              # Deterministic multi-source action aggregator
+```
+
+### Adding a New Feature
+1. Create a new endpoint file (e.g. `app/api/advisory/soil_profile.py` or `app/api/alerts.py`).
+2. Instantiate `router = APIRouter()`.
+3. In `app/api/advisory/__init__.py` (or `app/api/__init__.py`), add `router.include_router(new_router)`.
+
+### Removing a Feature
+Simply remove or comment out `router.include_router(...)` in the corresponding `__init__.py`.
+
+---
 ## Key Features
 
 ### 1. Full Agrometeorological Advisory Generation (`/api/advisory`)
