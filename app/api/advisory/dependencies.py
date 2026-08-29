@@ -1,0 +1,215 @@
+"""
+Shared services, singletons, and helper functions for advisory endpoints.
+"""
+
+import asyncio
+import time
+from typing import Dict, Any, List, Optional
+
+from app.models.schemas import AIAdvisoryRequest
+from app.services.context_builder import AdvisoryContextBuilder
+from app.rag.retriever import AdvisoryRetriever, RetrievalContext
+from app.llm.advisory_engine import AdvisoryEngine
+from app.services.translation import TranslationService
+from app.services.pest_disease_card import (
+    build_pest_disease_card,
+    call_llm_text,
+)
+from app.core.caching import cache_manager, advisory_cache, lock_manager
+from app.core.logging import logger
+
+# Services (initialized once at import time)
+context_builder = AdvisoryContextBuilder()
+advisory_engine = AdvisoryEngine()
+translation_service = TranslationService()
+
+# Retriever: gracefully degrades if Supabase is not configured
+try:
+    retriever = AdvisoryRetriever()
+except Exception as e:
+    logger.warning(f"AdvisoryRetriever init failed: {e}. RAG will be skipped.")
+    retriever = None
+
+# Kept for lifespan compatibility
+weather_service = None
+
+
+def pest_inputs_from_request(request: "AIAdvisoryRequest"):
+    """Derive the exact pest-index inputs from the frontend payload.
+
+    Mirrors the frontend `useRisk` computation so the card's deterministic
+    score/band always agrees with the Weather Risk pest score:
+      - avg_max_temp : mean of the next 5 bias-corrected max temps
+      - humidity     : current relative humidity
+      - soil_percentile : latest historical soil-moisture percentile
+      - rainy_days   : count of next-5 days with rain >= 1 mm
+      - total_rainfall : sum of next-5 day rain
+    """
+    daily = request.weatherData.daily
+
+    # Next-5-day bias-corrected forecast (preferred), else weather API daily
+    forecast_days = []
+    if request.forecastData and request.forecastData.forecast and request.forecastData.forecast.forecast:
+        forecast_days = sorted(
+            request.forecastData.forecast.forecast, key=lambda d: d.date
+        )[:5]
+
+    avg_max_temp = None
+    if forecast_days:
+        avg_max_temp = sum(d.tmax_corrected for d in forecast_days) / len(forecast_days)
+    elif daily.temperature_2m_max:
+        vals = daily.temperature_2m_max[:5]
+        avg_max_temp = sum(vals) / len(vals)
+
+    humidity = request.weatherData.current.relative_humidity_2m
+
+    rainy_days = None
+    total_rainfall = None
+    if forecast_days:
+        rainy_days = sum(1 for d in forecast_days if d.pcp_corrected >= 1.0)
+        total_rainfall = sum(d.pcp_corrected for d in forecast_days)
+    elif daily.precipitation_sum:
+        vals = daily.precipitation_sum[:5]
+        total_rainfall = sum(vals)
+        rainy_days = sum(1 for v in vals if v >= 1.0)
+
+    soil_percentile = None
+    if (
+        request.forecastData
+        and request.forecastData.soil_moisture
+        and request.forecastData.soil_moisture.soil_moisture
+    ):
+        historical = [
+            r for r in request.forecastData.soil_moisture.soil_moisture
+            if r.is_forecast == 0
+        ]
+        if historical:
+            soil_percentile = historical[-1].sm_percentile
+
+    return avg_max_temp, humidity, soil_percentile, rainy_days, total_rainfall
+
+
+def build_pest_retrieval_context(context) -> Optional["RetrievalContext"]:
+    """Deterministic weather/soil facts used to enrich the RAG query.
+
+    Returns None when there is no forecast/soil context (e.g. a weather-only
+    payload), in which case retrieval falls back to the plain crop+state+season
+    query — the crop filter is what matters for crop-specificity.
+    """
+    if not (context.forecast_summary or context.soil_moisture_summary):
+        return None
+    sm_avg = (
+        context.soil_moisture_summary.forecast_average_percentile
+        if context.soil_moisture_summary else 50.0
+    )
+    sm_trend = (
+        context.soil_moisture_summary.soil_moisture_trend
+        if context.soil_moisture_summary else "unknown"
+    )
+    fs = context.forecast_summary
+    return RetrievalContext(
+        crop_stage=context.crop_context.crop_stage,
+        rainfall_pattern=fs.rainfall_pattern if fs else "unknown",
+        total_rainfall_mm=fs.total_rainfall_mm if fs else 0.0,
+        min_temp_c=fs.minimum_temperature_c if fs else context.current_weather.temperature_c,
+        max_temp_c=fs.maximum_temperature_c if fs else context.current_weather.temperature_c,
+        soil_moisture_trend=sm_trend,
+        soil_moisture_percentile_avg=sm_avg,
+        lightning_category=(
+            context.lightning_summary.category if context.lightning_summary else "unknown"
+        ),
+    )
+
+
+async def get_or_create_pest_card(request: "AIAdvisoryRequest", context) -> Dict[str, Any]:
+    """Build the crop-specific English Pest & Disease card with cache + dedup lock.
+
+    Shared by POST /api/advisory/pest-card and POST /api/advisory/what-to-do so
+    both reuse the SAME cache key — a card generated by either endpoint is a
+    cache HIT for the other (no duplicate RAG retrieval or LLM call).
+    """
+    is_general = request.cropId.lower().strip() == "general"
+
+    # Cache key (crop + location + weather/soil fingerprint)
+    fingerprint = (
+        context.forecast_summary.forecast_fingerprint
+        if context.forecast_summary else "no_forecast"
+    )
+    village_id = request.forecastData.village_id if request.forecastData else None
+    sm_status = "sm_yes" if context.availability.soil_moisture_available else "sm_no"
+    weather_hash = f"{fingerprint}_{sm_status}"
+    card_key = (
+        "pest_card:"
+        + advisory_cache.get_key(
+            crop=context.crop_context.crop_name,
+            latitude=request.location.lat,
+            longitude=request.location.lng,
+            weather_hash=weather_hash,
+            village_id=village_id,
+        )
+    )
+
+    # Cache lookup FIRST — RAG + LLM only run on a MISS.
+    card_lock = await lock_manager.get_lock(card_key)
+    async with card_lock:
+        card = cache_manager.get(card_key)
+        if card:
+            logger.info("Pest card Cache HIT")
+            return card
+
+        logger.info("Pest card Cache MISS")
+
+        # Crop-filtered RAG retrieval (skipped for general crop), offloaded to
+        # a worker thread (embedding encode + pgvector RPCs are sync).
+        rag_chunks: List[Dict[str, Any]] = []
+        if is_general:
+            logger.info("General crop selected — skipping RAG for pest & disease card.")
+        elif retriever:
+            ret_ctx = build_pest_retrieval_context(context)
+            t_rag = time.perf_counter()
+            rag_chunks = await asyncio.to_thread(
+                retriever.retrieve,
+                crop=context.crop_context.crop_name,
+                state=context.location.state,
+                season=context.crop_context.season,
+                retrieval_context=ret_ctx,
+            )
+            logger.info(
+                f"Pest card RAG retrieval done in {time.perf_counter() - t_rag:.2f}s | "
+                f"{len(rag_chunks)} chunks for crop='{context.crop_context.crop_name}'"
+            )
+        else:
+            logger.warning("RAG retriever unavailable — pest card generated without ICAR context.")
+
+        # Deterministic pest inputs + score + band
+        avg_max_temp, humidity, soil_percentile, rainy_days, total_rainfall = (
+            pest_inputs_from_request(request)
+        )
+
+        card = await build_pest_disease_card(
+            avg_max_temp=avg_max_temp,
+            humidity=humidity,
+            soil_percentile=soil_percentile,
+            rainy_days=rainy_days,
+            total_rainfall=total_rainfall,
+            crop_name=context.crop_context.crop_name,
+            crop_stage=context.crop_context.crop_stage,
+            rag_chunks=rag_chunks,
+            llm_call=call_llm_text,
+            api_key="",  # providers are configured app-wide
+            crop_id=request.cropId,
+            season=context.crop_context.season,
+        )
+        card["crop_id"] = request.cropId
+        card["crop_name"] = context.crop_context.crop_name
+        card["crop_stage"] = context.crop_context.crop_stage
+        card["season"] = context.crop_context.season
+        card["is_general"] = is_general
+        cache_manager.set(card_key, card)
+        logger.info("Pest card Cache stored")
+        return card
+
+# Backwards compatibility aliases
+_pest_inputs_from_request = pest_inputs_from_request
+_build_pest_retrieval_context = build_pest_retrieval_context
+_get_pest_card = get_or_create_pest_card
