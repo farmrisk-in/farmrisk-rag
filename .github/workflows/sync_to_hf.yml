@@ -22,6 +22,6 @@ jobs:
           # Set your Hugging Face Space repository: <username>/<space-name>
           # You can configure HF_SPACE as a GitHub repository variable or secret,
           # or update the fallback below.
-          SPACE_REPO="${{ vars.HF_SPACE || secrets.HF_SPACE || 'farmrisk/farmrisk-rag' }}"
+          SPACE_REPO="${{ vars.HF_SPACE || secrets.HF_SPACE || 'Shaan1209/farmrisk-rag' }}"
           echo "Syncing branch main to Hugging Face Space: $SPACE_REPO"
           git push --force https://git:$HF_TOKEN@huggingface.co/spaces/$SPACE_REPO main
