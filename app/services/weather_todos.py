@@ -475,3 +475,61 @@ async def phrase_todos(
             "hint": p["hint"],
         })
     return result
+
+
+# ==============================================================================
+# STANDALONE DEMO / TEST RUNNER (matches todo_card.py)
+# ==============================================================================
+async def main():
+    import asyncio
+
+    # Mock inputs (identical to todo_card.py test harness)
+    rain_hourly_24h = [0, 0, 0, 1, 3, 12, 4, 2, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    rain_24h = 24.0          # mm total next 24h
+    rain_5d = 78.0           # mm total over 5 days
+    peak_rain_timing = "on 31 Jul"
+
+    tmax_24h = 34.0
+    tmin_24h = 24.0
+    tmax_5d = 41.0           # heatwave shows up only in 5-day window
+    tmin_5d = 23.0
+
+    gust_hourly_24h = [15, 18, 20, 22, 20, 18, 16, 14, 12, 10, 12, 14,
+                       16, 18, 20, 22, 24, 22, 20, 18, 16, 14, 12, 10]
+    gust_hourly_5d = [20] * 60 + [30, 40, 52, 48, 35] + [20] * 55
+
+    todos = build_todos(
+        rain_hourly_24h=rain_hourly_24h,
+        rain_24h=rain_24h,
+        rain_5d=rain_5d,
+        peak_rain_timing=peak_rain_timing,
+        tmax_24h=tmax_24h,
+        tmin_24h=tmin_24h,
+        tmax_5d=tmax_5d,
+        tmin_5d=tmin_5d,
+        gust_hourly_24h=gust_hourly_24h,
+        gust_hourly_5d=gust_hourly_5d,
+    )
+
+    print("=" * 70)
+    print("DETERMINISTIC TO-DOS (sorted by severity):")
+    print("=" * 70)
+    for t in todos:
+        print(f"[{t['severity']:>12}] {t['title']} — {t['why']}  ({t['timing']})")
+
+    print("\n" + "=" * 70)
+    print("FARMER-FACING CARD (phrased via app LLM providers / deterministic fallback):")
+    print("=" * 70)
+    card = await phrase_todos(todos, language="English")
+    for item in card:
+        print(f"• {item['title']}  [{item['timing']}]")
+        print(f"    {item['hint']}")
+
+    print("\nJSON:")
+    print(json.dumps(card, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())

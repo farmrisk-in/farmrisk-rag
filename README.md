@@ -657,3 +657,53 @@ The `Dockerfile`:
 3. Pre-downloads `BAAI/bge-small-en-v1.5` directly into the container image cache via `download_models.py` during build time for fast cold starts.
 4. Grants full permissions to `/code` for Hugging Face's non-root execution user (UID 1000).
 5. Serves Uvicorn on `0.0.0.0:7860`.
+
+---
+
+## 🚀 Automatic Sync to Hugging Face Space (CI/CD)
+
+The repository includes a GitHub Actions workflow (`.github/workflows/sync_to_hf.yml`) that **automatically syncs every new commit on `main` to your Hugging Face Space**.
+
+### Step 1: Create a Space on Hugging Face
+1. Go to [huggingface.co/new-space](https://huggingface.co/new-space).
+2. Choose **Docker** as the Space SDK (Blank template).
+3. Name your space (e.g. `farmrisk-rag`).
+
+### Step 2: Get a Hugging Face Access Token
+1. Go to [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).
+2. Create a new token with **Write** permission.
+3. Copy the token.
+
+### Step 3: Configure GitHub Secrets
+In your GitHub repository (`farmrisk-in/farmrisk-rag`):
+1. Navigate to **Settings** → **Secrets and variables** → **Actions**.
+2. Click **New repository secret**:
+   - **Name**: `HF_TOKEN`
+   - **Secret**: *(Paste your Hugging Face Write Token)*
+3. (Optional) Under **Variables** (or Secrets), add:
+   - **Name**: `HF_SPACE`
+   - **Value**: `<YOUR_HF_USERNAME>/<YOUR_SPACE_NAME>` (e.g. `farmrisk-in/farmrisk-rag`)
+
+### Step 4: Add Environment Secrets in Hugging Face Space
+In your Hugging Face Space:
+1. Navigate to **Settings** → **Variables and secrets**.
+2. Add your environment secrets:
+   - `GOOGLE_API_KEY`
+   - `GROQ_API_KEY`
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+
+### Step 5: Push and Auto-Deploy
+Now, whenever you push any new commit to `main`:
+```bash
+git push origin main
+```
+GitHub Actions will automatically push to Hugging Face, trigger a Docker rebuild, and deploy your latest code.
+
+*(Optional)* **Local Direct Dual-Push**: You can also push to both GitHub and Hugging Face simultaneously from your local terminal:
+```bash
+git remote set-url --add --push origin https://github.com/farmrisk-in/farmrisk-rag.git
+git remote set-url --add --push origin https://huggingface.co/spaces/<YOUR_HF_USERNAME>/<YOUR_SPACE_NAME>
+```
+With this configured, a simple `git push` pushes to both remotes in one command.
