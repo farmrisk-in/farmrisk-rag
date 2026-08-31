@@ -19,7 +19,7 @@ from app.api.advisory.dependencies import (
     get_or_create_pest_card,
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/api/advisory", tags=["Advisory"])
 
 
 @router.post("/what-to-do", response_model=Dict[str, Any])

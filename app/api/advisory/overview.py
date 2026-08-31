@@ -22,7 +22,7 @@ from app.api.advisory.dependencies import (
     retriever,
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/api/advisory", tags=["Advisory"])
 
 
 @router.post("", response_model=Dict[str, Any])
