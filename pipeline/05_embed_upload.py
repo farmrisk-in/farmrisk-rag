@@ -33,8 +33,9 @@ def main():
         print("No chunks to upload.")
         return
 
-    print(f"Loading SentenceTransformer model 'BAAI/bge-small-en-v1.5'...")
-    model = SentenceTransformer("BAAI/bge-small-en-v1.5")
+    embedding_model_name = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-small")
+    print(f"Loading SentenceTransformer model '{embedding_model_name}'...")
+    model = SentenceTransformer(embedding_model_name)
     
     print("Connecting to Supabase...")
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
@@ -44,11 +45,15 @@ def main():
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i:i + batch_size]
         
-        # Prepare contents to embed
-        texts = [item["content"] for item in batch]
+        # Prepare contents to embed with E5 prefix convention
+        if "e5" in embedding_model_name.lower():
+            texts = [f"passage: {item['content']}" for item in batch]
+        else:
+            texts = [item["content"] for item in batch]
+
         embeddings = model.encode(texts, normalize_embeddings=True)
         
-        upsert_data = []
+        upsert_dict = {}
         for idx, item in enumerate(batch):
             # Create a unique ID
             safe_state = item["state"].lower().replace(" ", "_").replace("&", "and")
@@ -57,7 +62,7 @@ def main():
             content_hash = hashlib.md5(item['content'].encode('utf-8')).hexdigest()[:8]
             unique_id = f"{safe_state}_{safe_crop}_{safe_season}_{item.get('chunk_id', idx)}_{content_hash}"
             
-            upsert_data.append({
+            upsert_dict[unique_id] = {
                 "id": unique_id,
                 "content": item["content"],
                 "embedding": embeddings[idx].tolist(),
@@ -67,9 +72,12 @@ def main():
                 "source": item["source"],
                 "page": item["page"],
                 "metadata": {
-                    "category": item["category"]
+                    "category": item["category"],
+                    "language": item.get("language", "en")
                 }
-            })
+            }
+            
+        upsert_data = list(upsert_dict.values())
             
         # Insert into Supabase (using upsert to avoid duplicate key errors on re-runs)
         try:
