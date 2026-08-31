@@ -1,0 +1,175 @@
+{
+  "total_files": 15,
+  "total_pages": 2825,
+  "text_pages": 2802,
+  "scanned_pages": 23,
+  "total_characters": 4967595,
+  "elapsed_seconds": 11.59,
+  "files": [
+    {
+      "file_name": "Cash_Crops.pdf",
+      "state": "Gujarat",
+      "rel_path": "Gujarat/Cash_Crops.pdf",
+      "output_file": "data/extracted/Gujarat/Cash_Crops.json",
+      "total_pages": 37,
+      "text_pages": 36,
+      "scanned_pages": 1,
+      "total_chars": 63606,
+      "status": "PARTIAL_TEXT"
+    },
+    {
+      "file_name": "Cereals.pdf",
+      "state": "Gujarat",
+      "rel_path": "Gujarat/Cereals.pdf",
+      "output_file": "data/extracted/Gujarat/Cereals.json",
+      "total_pages": 62,
+      "text_pages": 62,
+      "scanned_pages": 0,
+      "total_chars": 106972,
+      "status": "SUCCESS"
+    },
+    {
+      "file_name": "Control_of_white_grub_and_aflatoxin_in_groundnut.pdf",
+      "state": "Gujarat",
+      "rel_path": "Gujarat/Control_of_white_grub_and_aflatoxin_in_groundnut.pdf",
+      "output_file": "data/extracted/Gujarat/Control_of_white_grub_and_aflatoxin_in_groundnut.json",
+      "total_pages": 2,
+      "text_pages": 0,
+      "scanned_pages": 2,
+      "total_chars": 0,
+      "status": "SCANNED_NEEDS_OCR"
+    },
+    {
+      "file_name": "Oilseeds.pdf",
+      "state": "Gujarat",
+      "rel_path": "Gujarat/Oilseeds.pdf",
+      "output_file": "data/extracted/Gujarat/Oilseeds.json",
+      "total_pages": 24,
+      "text_pages": 24,
+      "scanned_pages": 0,
+      "total_chars": 45981,
+      "status": "SUCCESS"
+    },
+    {
+      "file_name": "Pink-Iyal.pdf",
+      "state": "Gujarat",
+      "rel_path": "Gujarat/Pink-Iyal.pdf",
+      "output_file": "data/extracted/Gujarat/Pink-Iyal.json",
+      "total_pages": 2,
+      "text_pages": 0,
+      "scanned_pages": 2,
+      "total_chars": 0,
+      "status": "SCANNED_NEEDS_OCR"
+    },
+    {
+      "file_name": "Pulses.pdf",
+      "state": "Gujarat",
+      "rel_path": "Gujarat/Pulses.pdf",
+      "output_file": "data/extracted/Gujarat/Pulses.json",
+      "total_pages": 20,
+      "text_pages": 20,
+      "scanned_pages": 0,
+      "total_chars": 29855,
+      "status": "SUCCESS"
+    },
+    {
+      "file_name": "Schematic_Book_of_Agriculture.pdf",
+      "state": "Gujarat",
+      "rel_path": "Gujarat/Schematic_Book_of_Agriculture.pdf",
+      "output_file": "data/extracted/Gujarat/Schematic_Book_of_Agriculture.json",
+      "total_pages": 80,
+      "text_pages": 78,
+      "scanned_pages": 2,
+      "total_chars": 104132,
+      "status": "PARTIAL_TEXT"
+    },
+    {
+      "file_name": "Summer_Crops.pdf",
+      "state": "Gujarat",
+      "rel_path": "Gujarat/Summer_Crops.pdf",
+      "output_file": "data/extracted/Gujarat/Summer_Crops.json",
+      "total_pages": 37,
+      "text_pages": 37,
+      "scanned_pages": 0,
+      "total_chars": 53982,
+      "status": "SUCCESS"
+    },
+    {
+      "file_name": "ICAR En-Kharif Agro-Advisories for Farmers 2025.pdf",
+      "state": "India",
+      "rel_path": "India/ICAR En-Kharif Agro-Advisories for Farmers 2025.pdf",
+      "output_file": "data/extracted/India/ICAR En-Kharif Agro-Advisories for Farmers 2025.json",
+      "total_pages": 310,
+      "text_pages": 302,
+      "scanned_pages": 8,
+      "total_chars": 816268,
+      "status": "PARTIAL_TEXT"
+    },
+    {
+      "file_name": "Rabi-Agro-Advisory-2021-22.pdf",
+      "state": "India",
+      "rel_path": "India/Rabi-Agro-Advisory-2021-22.pdf",
+      "output_file": "data/extracted/India/Rabi-Agro-Advisory-2021-22.json",
+      "total_pages": 755,
+      "text_pages": 752,
+      "scanned_pages": 3,
+      "total_chars": 700474,
+      "status": "PARTIAL_TEXT"
+    },
+    {
+      "file_name": "pp_kharif.pdf",
+      "state": "Punjab",
+      "rel_path": "Punjab/pp_kharif.pdf",
+      "output_file": "data/extracted/Punjab/pp_kharif.json",
+      "total_pages": 208,
+      "text_pages": 208,
+      "scanned_pages": 0,
+      "total_chars": 523855,
+      "status": "SUCCESS"
+    },
+    {
+      "file_name": "pp_rabi.pdf",
+      "state": "Punjab",
+      "rel_path": "Punjab/pp_rabi.pdf",
+      "output_file": "data/extracted/Punjab/pp_rabi.json",
+      "total_pages": 184,
+      "text_pages": 184,
+      "scanned_pages": 0,
+      "total_chars": 451602,
+      "status": "SUCCESS"
+    },
+    {
+      "file_name": "pp_veg.pdf",
+      "state": "Punjab",
+      "rel_path": "Punjab/pp_veg.pdf",
+      "output_file": "data/extracted/Punjab/pp_veg.json",
+      "total_pages": 208,
+      "text_pages": 208,
+      "scanned_pages": 0,
+      "total_chars": 349592,
+      "status": "SUCCESS"
+    },
+    {
+      "file_name": "Agriculture-CPG-2020.pdf",
+      "state": "Tamilnadu",
+      "rel_path": "Tamilnadu/Agriculture-CPG-2020.pdf",
+      "output_file": "data/extracted/Tamilnadu/Agriculture-CPG-2020.json",
+      "total_pages": 454,
+      "text_pages": 454,
+      "scanned_pages": 0,
+      "total_chars": 923686,
+      "status": "SUCCESS"
+    },
+    {
+      "file_name": "HORTICULTURE.pdf",
+      "state": "Tamilnadu",
+      "rel_path": "Tamilnadu/HORTICULTURE.pdf",
+      "output_file": "data/extracted/Tamilnadu/HORTICULTURE.json",
+      "total_pages": 442,
+      "text_pages": 437,
+      "scanned_pages": 5,
+      "total_chars": 797590,
+      "status": "PARTIAL_TEXT"
+    }
+  ]
+}
