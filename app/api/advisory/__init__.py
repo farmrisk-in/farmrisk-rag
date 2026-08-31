@@ -29,8 +29,8 @@ from app.api.advisory.dependencies import (
     weather_service,
 )
 
-# Combined Advisory Router
-router = APIRouter(prefix="/api/advisory", tags=["Advisory"])
+# Combined Advisory Router (subrouters already carry prefix="/api/advisory")
+router = APIRouter()
 
 # Mount individual feature routers
 router.include_router(overview_router)

@@ -34,7 +34,7 @@ class RetrievalContext:
 
 class AdvisoryRetriever:
     def __init__(self):
-        self.model = SentenceTransformer("BAAI/bge-small-en-v1.5")
+        self.model = SentenceTransformer(settings.EMBEDDING_MODEL)
         self.store = PgVectorStore()
 
     def retrieve(
@@ -55,7 +55,9 @@ class AdvisoryRetriever:
         query_text = self._build_query(crop, state, season, retrieval_context)
         logger.debug(f"RAG query: {query_text[:200]}")
 
-        query_vector = self.model.encode(query_text, normalize_embeddings=True).tolist()
+        # E5 models require 'query: ' prefix for asymmetric query-passage search
+        encode_input = f"query: {query_text}" if "e5" in settings.EMBEDDING_MODEL.lower() else query_text
+        query_vector = self.model.encode(encode_input, normalize_embeddings=True).tolist()
 
         collected: Dict[str, Dict[str, Any]] = {}  # id -> chunk
 

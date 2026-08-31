@@ -41,6 +41,7 @@ class Settings:
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 
     # Advisory Context Builder & RAG Thresholds
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-small")
     RAG_TOP_K: int = int(os.getenv("RAG_TOP_K", "5"))
     RAINY_DAY_THRESHOLD_MM: float = float(os.getenv("RAINY_DAY_THRESHOLD_MM", "2.5"))
     HEAVY_RAIN_THRESHOLD_MM: float = float(os.getenv("HEAVY_RAIN_THRESHOLD_MM", "35.0"))

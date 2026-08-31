@@ -14,7 +14,7 @@ from app.core.caching import cache_manager, translation_cache, lock_manager
 from app.core.logging import logger
 from app.api.advisory.dependencies import context_builder, translation_service
 
-router = APIRouter()
+router = APIRouter(prefix="/api/advisory", tags=["Advisory"])
 
 
 @router.post("/weather-summary", response_model=Dict[str, Any])
