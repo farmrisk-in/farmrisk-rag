@@ -2,37 +2,40 @@
   {
     "season": "Kharif",
     "source": "ICAR.pdf",
-    "state": "Assam",
-    "category": "Oilseed Crops",
-    "crop": "Maize",
-    "page": 42,
-    "content": "Maize Variety Bio 9544",
+    "state": "Andhra Pradesh",
+    "category": "Fruit & Vegetable Crops",
+    "crop": "Groundnut",
+    "page": 32,
+    "content": "cm depth and can harvest up to 1 acre per hour.",
+    "language": "en",
     "validation_errors": [
-      "Content too short (22 chars)"
+      "Content too short (47 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "ICAR.pdf",
+    "state": "Arunachal Pradesh",
+    "category": "Cereal Crops",
+    "crop": "Maize",
+    "page": 36,
+    "content": "Finger millet cultivation in Arunachal Pradesh",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (46 chars)"
     ]
   },
   {
     "season": "Kharif",
     "source": "ICAR.pdf",
     "state": "Gujarat",
-    "category": "Poultry",
+    "category": "Cereal Crops",
     "crop": "Groundnut",
     "page": 65,
     "content": "SOUTH SAURASHTRA",
+    "language": "en",
     "validation_errors": [
       "Content too short (16 chars)"
-    ]
-  },
-  {
-    "season": "Kharif",
-    "source": "ICAR.pdf",
-    "state": "Gujarat",
-    "category": "Poultry",
-    "crop": "Soybean",
-    "page": 66,
-    "content": "Cotton (Bt & Desi) Groundnut Demo Plot",
-    "validation_errors": [
-      "Content too short (38 chars)"
     ]
   },
   {
@@ -43,6 +46,7 @@
     "crop": "Banana",
     "page": 71,
     "content": "Finger Millet, Little Millet and Foxtail Millet",
+    "language": "en",
     "validation_errors": [
       "Content too short (47 chars)"
     ]
@@ -51,24 +55,13 @@
     "season": "Kharif",
     "source": "ICAR.pdf",
     "state": "Maharashtra",
-    "category": "Fruit Crops",
-    "crop": "Pomegranate",
-    "page": 172,
-    "content": "Fruit cover in Pomegranate",
-    "validation_errors": [
-      "Content too short (26 chars)"
-    ]
-  },
-  {
-    "season": "Kharif",
-    "source": "ICAR.pdf",
-    "state": "Manipur",
     "category": "Cereal Crops",
-    "crop": "Maize",
-    "page": 184,
-    "content": "Varietal demonstration in paddy",
+    "crop": "Onion",
+    "page": 175,
+    "content": "Grape",
+    "language": "en",
     "validation_errors": [
-      "Content too short (31 chars)"
+      "Content too short (5 chars)"
     ]
   },
   {
@@ -79,8 +72,135 @@
     "crop": "Pumpkin",
     "page": 191,
     "content": "Carrot",
+    "language": "en",
     "validation_errors": [
       "Content too short (6 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Punjab",
+    "category": "Rabi Crops",
+    "crop": "Wheat",
+    "page": 35,
+    "content": "bran, 2% mineral mixture and 1% salt.",
+    "zone": "Zone And",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Punjab",
+    "category": "Rabi Crops",
+    "crop": "Mustard",
+    "page": 39,
+    "content": "Crop Sowing time Toria Whole September",
+    "zone": "Zone And",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Punjab",
+    "category": "Rabi Crops",
+    "crop": "Mustard",
+    "page": 39,
+    "content": "Third week of September",
+    "zone": "Zone And",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (23 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Punjab",
+    "category": "Rabi Crops",
+    "crop": "Mustard",
+    "page": 39,
+    "content": "10-30 October",
+    "zone": "Zone And",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (13 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Uttar Pradesh",
+    "category": "Rabi Crops",
+    "crop": "Maize",
+    "page": 150,
+    "content": "is warm even in the winter.",
+    "zone": "Zone-Iii",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Uttar Pradesh",
+    "category": "Rabi Crops",
+    "crop": "Tomato",
+    "page": 177,
+    "content": "sauce, tomato powder and dehydrated tomato.",
+    "zone": "Zone-Iii",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (43 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Jharkhand",
+    "category": "Rabi Crops",
+    "crop": "Mustard",
+    "page": 202,
+    "content": "30; NRCHB 101; Siwani T59 (Varuna); Pusa Agrani.",
+    "zone": "Zone-Iv",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Tomato",
+    "page": 297,
+    "content": "5 g Pepper powder 0.3 g",
+    "zone": "Zone-Vii",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (23 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Tomato",
+    "page": 297,
+    "content": "thoroughly.",
+    "zone": "Zone-Vii",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (11 chars)"
     ]
   },
   {
@@ -92,6 +212,7 @@
     "page": 298,
     "content": "25 g Aniseed 15 g",
     "zone": "Zone-Vii",
+    "language": "en",
     "validation_errors": [
       "Content too short (17 chars)"
     ]
@@ -105,6 +226,7 @@
     "page": 298,
     "content": "50 g Clove 6 nos.",
     "zone": "Zone-Vii",
+    "language": "en",
     "validation_errors": [
       "Content too short (17 chars)"
     ]
@@ -116,10 +238,25 @@
     "category": "Rabi Crops",
     "crop": "Garlic",
     "page": 298,
-    "content": "10 g Tamarind pulp 50 g Red chilli 15 g",
+    "content": "10 g Tamarind pulp 50 g",
     "zone": "Zone-Vii",
+    "language": "en",
     "validation_errors": [
-      "Content too short (39 chars)"
+      "Content too short (23 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Chilli",
+    "page": 298,
+    "content": "15 g",
+    "zone": "Zone-Vii",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (4 chars)"
     ]
   },
   {
@@ -131,8 +268,5668 @@
     "page": 298,
     "content": "50 g",
     "zone": "Zone-Vii",
+    "language": "en",
     "validation_errors": [
       "Content too short (4 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Turmeric",
+    "page": 298,
+    "content": "15 g Vinegar 150 ml Cinnamon 15 g",
+    "zone": "Zone-Vii",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Mizoram",
+    "category": "Rabi Crops",
+    "crop": "Mustard",
+    "page": 298,
+    "content": "400 ml",
+    "zone": "Zone-Vii",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (6 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Tamil Nadu",
+    "category": "Rabi Crops",
+    "crop": "Jowar",
+    "page": 390,
+    "content": "Varieties: CO 30, CO 32 and K 12",
+    "zone": "Zone-X",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "Rabi-Agro-Advisory-2021-22.pdf",
+    "state": "Tamil Nadu",
+    "category": "Rabi Crops",
+    "crop": "Chickpea",
+    "page": 391,
+    "content": "Variety: Paiyur 2, CRIDA 18R and CRIDA 19 R",
+    "zone": "Zone-X",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (43 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Chickpea",
+    "page": 17,
+    "content": "Londex 60 DF (bensulfuron methyl)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Pulses",
+    "crop": "Soybean",
+    "page": 81,
+    "content": "alkaline and well-drained loamy soils. Rotations",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Pulses",
+    "crop": "Wheat",
+    "page": 94,
+    "content": "after harvesting toria.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (23 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Pulses",
+    "crop": "Wheat",
+    "page": 95,
+    "content": "harvesting potato crop in end- December.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 110,
+    "content": "11.4 66.2",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (9 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Jowar",
+    "page": 110,
+    "content": "9.0 55.6",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (8 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Cowpea",
+    "page": 110,
+    "content": "22.5 61.2",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (9 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Jowar",
+    "page": 111,
+    "content": "of the red leaf spot disease. Soil Type",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Jowar",
+    "page": 111,
+    "content": "drainage should be provided.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Jowar",
+    "page": 123,
+    "content": "Flowering to milk stage",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (23 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Onion",
+    "page": 127,
+    "content": "mentha for higher returns.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (26 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 136,
+    "content": "Seed Inoculation: Inoculate the seed as given under maize/soybean-wheat system in this chapter.",
+    "language": "en",
+    "validation_errors": [
+      "Duplicate advisory record"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 137,
+    "content": "Seed Inoculation: Inoculate the seed as given under maize/soybean-wheat system in this chapter.",
+    "language": "en",
+    "validation_errors": [
+      "Duplicate advisory record"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Onion",
+    "page": 138,
+    "content": "Biofertilizers: Apply consortium biofertilizer @ 4 kg per acre as soil application at the time of transplanting or mix two packets (0.5 kg each) of biofertilizer (Azotobacter sp. + Sphingobacterium sp. + Burkholderia sp.) in 80-100 litres of water. Dip the roots of rabi",
+    "language": "en",
+    "validation_errors": [
+      "Duplicate advisory record"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Moong",
+    "page": 142,
+    "content": "Seed Inoculation: Inoculate the seed with single packet of consortium biofertilizer (Rhizobium sp. LSMR-1 and Rhizobacterium RB-3) at the time of sowing. Moisten the seed using one packet per acre with about 300 mL  of water. Mix the seed thoroughly with culture and let it dry in the shade. Sow the seed within one hour of application of biofertilizer. Organic Manures: The nutritional requirement of 5 kg nitrogen per acre of summer",
+    "language": "en",
+    "validation_errors": [
+      "Duplicate advisory record"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 152,
+    "content": "July Aug Sept Oct",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Wheat",
+    "page": 152,
+    "content": "Dec Jan Feb March",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Rice",
+    "page": 153,
+    "content": "June July August September October",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 153,
+    "content": "June July August September",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (26 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Cotton",
+    "page": 154,
+    "content": "May June July August September",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Rice",
+    "page": 160,
+    "content": "-- -- -- -- -- --",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Maize",
+    "page": 160,
+    "content": "-- --",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (5 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Cotton",
+    "page": 160,
+    "content": "(Bt and non-Bt hybrids -- --",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Cotton",
+    "page": 160,
+    "content": "-- --",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (5 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Rice",
+    "page": 173,
+    "content": "Jowar (Hybrid)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Maize",
+    "page": 173,
+    "content": "Tur (Arhar)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (11 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Moong",
+    "page": 173,
+    "content": "Mash (Urad)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (11 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Soybean",
+    "page": 173,
+    "content": "Sesamum",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Moong",
+    "page": 175,
+    "content": "Mash",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (4 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Rice",
+    "page": 180,
+    "content": "- - 0.05 0.2 0.01 0.02 - - Wild  rice or red rice",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (49 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Moong",
+    "page": 180,
+    "content": "- - 0.1 0.2 - - 0.1 0.2 For disease",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Tur",
+    "page": 180,
+    "content": "- - 0.1 0.2 - - - - Permitted at final inspection",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (49 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Soybean",
+    "page": 180,
+    "content": "- - 0.1 0.2 - - - - At final inspection",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Rice",
+    "page": 181,
+    "content": "98.0 98.0 2.0 2.0 13.0 13.0",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Moong",
+    "page": 181,
+    "content": "98.0 98.0 2.0 2.0 – – 9.0 9.0",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (29 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Tur",
+    "page": 181,
+    "content": "98.0 98.0 2.0 2.0 – – 9.0 9.0",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (29 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Soybean",
+    "page": 181,
+    "content": "98.0 98.0 2.0 2.0 None – – 12.0 12.0",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 181,
+    "content": "(Hybs. & Vtys.) 98.0 98.0 2.0 2.0 – – 10.0 10.0",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (47 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Rice",
+    "page": 187,
+    "content": "ery sowing Tractor operated seeder for mat type",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (47 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Paddy",
+    "page": 187,
+    "content": "transplanters. Cutting of mat-type",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Groundnut",
+    "page": 189,
+    "content": "thresher --- 25 hp Tractor 2.0 q/h",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "pp_kharif.pdf",
+    "state": "Punjab",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 190,
+    "content": "uprooter Two row (135 cm) 45 hp & above 10-12",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (45 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereal Crops",
+    "crop": "Lentil",
+    "page": 3,
+    "content": "Field Pea",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (9 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereal Crops",
+    "crop": "Wheat",
+    "page": 5,
+    "content": "•",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (1 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereal Crops",
+    "crop": "Wheat",
+    "page": 12,
+    "content": "sowing. • Treat the seed as per recommendations.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Moong",
+    "page": 51,
+    "content": "tillage after the harvest of wheat. The sowing",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (46 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Wheat",
+    "page": 51,
+    "content": "straw in the field. In case of combine harvested",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Oilseed Crops",
+    "crop": "Mustard",
+    "page": 57,
+    "content": "and African",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (11 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Oilseed Crops",
+    "crop": "Mustard",
+    "page": 58,
+    "content": "10-30 October",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (13 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Sugar Crops",
+    "crop": "Wheat",
+    "page": 83,
+    "content": "sown after harvesting toria.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Sugar Crops",
+    "crop": "Wheat",
+    "page": 84,
+    "content": "after harvesting potato crop in end-December.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (45 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Wheat",
+    "page": 115,
+    "content": "- -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (3 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Barley",
+    "page": 115,
+    "content": "- - Spring",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (10 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Mustard",
+    "page": 115,
+    "content": "Gobhi",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (5 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Mustard",
+    "page": 115,
+    "content": "- -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (3 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Sugarcane",
+    "page": 115,
+    "content": "(Plant Crop) - - - - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (24 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Sugarcane",
+    "page": 115,
+    "content": "(ratoon crop) - - - - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 122,
+    "content": "Seed Inoculation: Inoculate the seed as given under maize/soybean-wheat system in this chapter.",
+    "language": "en",
+    "validation_errors": [
+      "Duplicate advisory record"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 123,
+    "content": "Seed Inoculation: Inoculate the seed as given under maize/soybean-wheat system in this chapter.",
+    "language": "en",
+    "validation_errors": [
+      "Duplicate advisory record"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 128,
+    "content": "can be supplied through 1.7 tonnes FYM (1% N) + 1.1 tonnes vermicompost (1.5% N) + 0.7 tonnes castor cake (2.5% N). Weeds and Insect-Pest Control: Control pests as given under maize/soybean-",
+    "language": "en",
+    "validation_errors": [
+      "Duplicate advisory record"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Moong",
+    "page": 129,
+    "content": "Seed Inoculation: Inoculate the seed with single packet of consortium biofertilizer (Rhizobium sp. LSMR-1 and Rhizobacterium RB-3) at the time of sowing. Moisten the seed using one packet per acre with about 300 mL  of water. Mix the seed thoroughly with culture and let it dry in the shade. Sow the seed within one hour of application of biofertilizer. Organic Manures: The nutritional requirement of 5 kg nitrogen per acre of summer",
+    "language": "en",
+    "validation_errors": [
+      "Duplicate advisory record"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 139,
+    "content": "July Aug Sept Oct",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Wheat",
+    "page": 139,
+    "content": "Dec Jan Feb March",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Rice",
+    "page": 139,
+    "content": "June July August September October",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Maize",
+    "page": 140,
+    "content": "June July August September",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (26 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Fodder Crops",
+    "crop": "Cotton",
+    "page": 141,
+    "content": "May June July August September",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Rice",
+    "page": 151,
+    "content": "Jowar (Hybrid)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Moong",
+    "page": 151,
+    "content": "Mash (Urad)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (11 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Soybean",
+    "page": 151,
+    "content": "Sesamum",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Cotton",
+    "page": 151,
+    "content": "(Medium staple)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (15 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Chickpea",
+    "page": 151,
+    "content": "Lentil (Massar)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (15 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Chickpea",
+    "page": 155,
+    "content": "- - 0.10 0.20 - - - - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Lentil",
+    "page": 155,
+    "content": "- - 0.10 0.20 - - - - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Pea",
+    "page": 155,
+    "content": "- - 0.10 0.20 - - - - - - Rapeseed and",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Mustard",
+    "page": 155,
+    "content": "- - 0.10 0.50 - - 0.05# 0.10#",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (29 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Wheat",
+    "page": 156,
+    "content": "2# 5# None* 0.05** None* 0.25**",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Barley",
+    "page": 156,
+    "content": "- - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Chickpea",
+    "page": 156,
+    "content": "- - - - - - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (15 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Lentil",
+    "page": 156,
+    "content": "- - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Pea",
+    "page": 156,
+    "content": "None None None - - - - Rape seed and",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Mustard",
+    "page": 156,
+    "content": "5## 10## - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Wheat",
+    "page": 161,
+    "content": "into combine harvested",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Paddy",
+    "page": 161,
+    "content": "with combine harvester fitted with Super SMS",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (44 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Sunflower",
+    "page": 164,
+    "content": "Thresher 7.5-15 hp motor or Tractor 4-10 q/h",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (44 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Sunflower",
+    "page": 164,
+    "content": "threshing.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (10 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Maize",
+    "page": 164,
+    "content": "5-20 hp motor/ tractor 5-10 q/h",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Rabi",
+    "source": "pp_rabi.pdf",
+    "state": "Punjab",
+    "category": "Cereals",
+    "crop": "Maize",
+    "page": 164,
+    "content": "cum thresher 5-20 hp motor/ tractor 15-20 q/h",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (45 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Potato",
+    "page": 9,
+    "content": "107.09 275.34 2948.55",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (21 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Cauliflower",
+    "page": 9,
+    "content": "22.98 196.12 450.60",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Onion",
+    "page": 9,
+    "content": "10.35 238.27 246.52",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Tomato",
+    "page": 9,
+    "content": "10.28 259.74 266.91",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Chilli",
+    "page": 9,
+    "content": "8.78 20.09 17.63",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Garlic",
+    "page": 9,
+    "content": "8.87 109.10 96.77",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Cabbage",
+    "page": 9,
+    "content": "7.98 161.68 129.01 Muskmelon 7.01 194.87 136.62",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (47 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Brinjal",
+    "page": 9,
+    "content": "5.47 225.72 139.79",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (18 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Tomato",
+    "page": 41,
+    "content": "Climate and Soil",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Brinjal",
+    "page": 50,
+    "content": "Climate and Soil",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Brinjal",
+    "page": 54,
+    "content": "iv) For the control of",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Chilli",
+    "page": 58,
+    "content": "Climate and Soil",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Onion",
+    "page": 76,
+    "content": "Climate and Soil",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Onion",
+    "page": 76,
+    "content": "cultivation.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Onion",
+    "page": 82,
+    "content": "• Remove plant debris and",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Okra",
+    "page": 132,
+    "content": "Feb. – Mar. Jun. – Jul. 15-18 8-10 4-6",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Cowpea",
+    "page": 132,
+    "content": "Feb. and Jun. 8-10",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (18 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Garlic",
+    "page": 132,
+    "content": "End Sept.- Oct. 7.5",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Turmeric",
+    "page": 133,
+    "content": "April 67.5 7 q Sweet",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (20 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetable Crops",
+    "crop": "Ginger",
+    "page": 184,
+    "content": "3.5 90.2",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (8 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetable Crops",
+    "crop": "Tomato",
+    "page": 184,
+    "content": "4.0 92.5",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (8 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetable Crops",
+    "crop": "Potato",
+    "page": 184,
+    "content": "3.5-5.5 91.0",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetable Crops",
+    "crop": "Turmeric",
+    "page": 184,
+    "content": "2.5-3.0 91.0",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Bottle gourd",
+    "page": 188,
+    "content": "Lagenaria siceraria 5.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Tomato",
+    "page": 188,
+    "content": "Solanum lycopersicon 14.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (24 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Brinjal",
+    "page": 188,
+    "content": "Solanum melongena 15.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (21 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Okra",
+    "page": 188,
+    "content": "Abelmoschus esculentus 18.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (26 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Cowpea",
+    "page": 188,
+    "content": "Vigna sinensis 19.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (18 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Onion",
+    "page": 188,
+    "content": "Allium cepa 20.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (15 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Garlic",
+    "page": 188,
+    "content": "Allium sativum 21.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (18 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Pea",
+    "page": 188,
+    "content": "Pisum sativum 22.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Cauliflower",
+    "page": 189,
+    "content": "Brassica oleracea var. botrytis 23.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Vegetables",
+    "crop": "Turmeric",
+    "page": 189,
+    "content": "Curcuma longa 35.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Grapes",
+    "page": 190,
+    "content": "Chlorpyrifos",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Cucumber",
+    "page": 190,
+    "content": "Pear Fenvalerate",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Guava",
+    "page": 190,
+    "content": "Spinosad",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (8 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Cabbage",
+    "page": 190,
+    "content": "Indoxacarb Cauliflower, Cabbage Propargite",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Brinjal",
+    "page": 190,
+    "content": "Cypermethrin Kinnow Profenofos",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Tomato",
+    "page": 190,
+    "content": "Flubendiamide",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (13 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Tomato",
+    "page": 190,
+    "content": "Emamectin Benzoate",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (18 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Cauliflower",
+    "page": 190,
+    "content": "Chlorantraniliprole",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Okra",
+    "page": 190,
+    "content": "Imidacloprid",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Okra",
+    "page": 190,
+    "content": "Thiamethoxam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "pp_veg.pdf",
+    "state": "Punjab",
+    "category": "Fruit Crops",
+    "crop": "Okra",
+    "page": 190,
+    "content": "Diafenthiuron Bringal Pyridalyl",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Field Crops",
+    "crop": "Millets",
+    "page": 5,
+    "content": "i.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (2 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Field Crops",
+    "crop": "Jowar",
+    "page": 5,
+    "content": "ii.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (3 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Field Crops",
+    "crop": "Bajra",
+    "page": 5,
+    "content": "iii. Ragi iv.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (13 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Field Crops",
+    "crop": "Maize",
+    "page": 5,
+    "content": "v. Small Millets",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Wheat",
+    "page": 5,
+    "content": "i.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (2 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 5,
+    "content": "ii. Blackgram iii. Greengram iv.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Cowpea",
+    "page": 5,
+    "content": "v. Horsegram vi.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Groundnut",
+    "page": 5,
+    "content": "ii.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (3 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Sesame",
+    "page": 5,
+    "content": "iii.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (4 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Castor",
+    "page": 5,
+    "content": "iv.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (3 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Sunflower",
+    "page": 5,
+    "content": "v. Safflower vi.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Coconut",
+    "page": 5,
+    "content": "vii. Oilpalm S.No. Crop Page No. viii. Niger i.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (47 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Cotton",
+    "page": 6,
+    "content": "ii. Jute",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (8 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Cereals",
+    "crop": "Rice",
+    "page": 67,
+    "content": "tungro disease:",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (15 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Cereals",
+    "crop": "Rice",
+    "page": 67,
+    "content": "tungro Bacilliform virus and",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Sugarcane",
+    "page": 302,
+    "content": "per ha b.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (9 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Sugarcane",
+    "page": 302,
+    "content": "225 : 62.5 : 112.5 kg N, P2O5 and K2O per ha",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (44 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Bajra",
+    "page": 356,
+    "content": "0.65 0.75 2.50",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Cotton",
+    "page": 356,
+    "content": "0.44 0.10 0.66",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Banana",
+    "page": 356,
+    "content": "0.61 0.12 1.00",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Jowar",
+    "page": 356,
+    "content": "0.40 0.23 2.17",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Maize",
+    "page": 356,
+    "content": "0.42 1.57 1.65",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Sugarcane",
+    "page": 356,
+    "content": "0.53 0.10 1.10",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Rice",
+    "page": 367,
+    "content": ": IR 20, TRY 1, CO 43.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Maize",
+    "page": 367,
+    "content": ": CO 1",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (6 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Sunflower",
+    "page": 367,
+    "content": ": CO 2",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (6 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Groundnut",
+    "page": 367,
+    "content": ": TMV 7",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fibre Crops",
+    "crop": "Soybean",
+    "page": 367,
+    "content": ": CO 1",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (6 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Millets",
+    "page": 368,
+    "content": ": Ragi (CO 12, CO 13)",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (21 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Tomato",
+    "page": 409,
+    "content": "Aerobic",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 4 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 3 to 4 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 4 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 2 to 4 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 4 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 4 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 5 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 2 to 5 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 5 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 2 to 5 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 51to 5 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 2 to 5 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to6 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 2 to 6 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 6 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 2 to 6 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 51to 6 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 6 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 1 to 7 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 421,
+    "content": "Black 2 to 7 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Black 1 to 7 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Black 2 to 7 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Black 1 to 7 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Black 1 to 7 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 49 to 4 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 4 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 52 to 4 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 50 to 4 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 49 to 4 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 4 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 50 to 5 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 5 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 50 to 5 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 50 to 5 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 49 to 5 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 5 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 50 to 6 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 6 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 50 to 6 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 6 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 49 to 6 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 50 to 6 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 7 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 7 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 7 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 51 to 7 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Oilseeds",
+    "crop": "Cotton",
+    "page": 422,
+    "content": "Red 50 to 7 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Black - Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 423,
+    "content": "Red - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 424,
+    "content": "Red Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (29 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 424,
+    "content": "Red 01 to 02 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 424,
+    "content": "Red 02 to 03 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 424,
+    "content": "Red Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (23 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 424,
+    "content": "Red 01 to 03 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 424,
+    "content": "Red Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (26 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 424,
+    "content": "Red 01 to 03 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Tur",
+    "page": 424,
+    "content": "Red 01 to 03 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 48 to 52 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 49 to 52 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 48 to 52 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 49 to 52 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 49 to 01 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 50 to 01 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 49 to 01 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 50 to 01 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 50 to 02 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 51 to 02 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 49 to 02 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 51 to 02 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 52 to 03 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 01 to 03 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 51 to 03 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 02 to 03 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 50 to 03 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Black 51 to 03 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 48 to 52 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 49 to 52 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 48 to 52 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 49 to 52 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 49 to 01 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 51 to 01 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 50 to 01 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 52 to 01 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 49 to 01 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 49 to 01 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 49 to 02 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 51 to 02 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 50 to 02 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 51 to 02 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 424,
+    "content": "Red 49 to 02 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 425,
+    "content": "Red 49 to02 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 425,
+    "content": "Red 50 to 03 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 425,
+    "content": "Red 51 to 03 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 425,
+    "content": "Red 50 to 03 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 425,
+    "content": "Red 51 to 03 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 425,
+    "content": "Red 49 to 03 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Jowar",
+    "page": 425,
+    "content": "Red 49 to 03 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black - Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black - Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black 02 to 03 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black - Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black 02 to 03 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black 02 to 03 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black 02 to 04 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black 02 to 04 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black 01 to 04 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Black 02 to 04 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 52 to 03 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 01 to 03 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 52 to 03 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 01 to 03 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 51 to 03 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 52 to 03 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 01 to 04 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 01 to 04 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 52 to 04 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 01 to 04 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 51 to 04 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sunflower",
+    "page": 425,
+    "content": "Red 52 to 04 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 33 to 41 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 31 to 41 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 30 to 41 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 29 to 41 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 32 to 41 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 30 to 41 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 33 to 42 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 31 to 42 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 31 to 42 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 31 to 42 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 32 to 42 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 425,
+    "content": "Red 32 to 42 Virudhunagar Aruppukottai",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 426,
+    "content": "Red 33 to 43 Virudhunagar Rajapalayam",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 426,
+    "content": "Red 31 to 43 Virudhunagar Sattur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 426,
+    "content": "Red 32 to 43 Virudhunagar Srivilliputtur",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 426,
+    "content": "Red 32 to 43 Virudhunagar Tiruchuli",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Groundnut",
+    "page": 426,
+    "content": "Red 33 to 43 Virudhunagar Virudhunagar",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Sugarcane",
+    "page": 437,
+    "content": "Purpose",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Agriculture-CPG-2020.pdf",
+    "state": "Tamil Nadu",
+    "category": "Pulses",
+    "crop": "Rice",
+    "page": 437,
+    "content": "Purpose",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Horticulture Crops",
+    "crop": "Guava",
+    "page": 3,
+    "content": "8.  Pineapple 9.  Sapota",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (24 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Brinjal",
+    "page": 3,
+    "content": "3.  Bhendi",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (10 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Cowpea",
+    "page": 303,
+    "content": "TNAU Vegetable",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (14 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fruit Crops",
+    "crop": "Mango",
+    "page": 313,
+    "content": "30-50",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (5 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fruit Crops",
+    "crop": "Banana",
+    "page": 313,
+    "content": "20-25 Citrus 22-30",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (18 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fruit Crops",
+    "crop": "Guava",
+    "page": 313,
+    "content": "22-30 Sapota 20-30 Amla 15-25",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (29 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fruit Crops",
+    "crop": "Grapes",
+    "page": 313,
+    "content": "15-25",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (5 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fruit Crops",
+    "crop": "Guava",
+    "page": 314,
+    "content": "10.00 5.00 30.00",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (16 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Fruit Crops",
+    "crop": "Grapes",
+    "page": 314,
+    "content": "50.00 50.00 100.00 3rd year onwards",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Brinjal",
+    "page": 337,
+    "content": "0.10 - - 0.10 -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (15 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Brinjal",
+    "page": 337,
+    "content": "0.01 - - 0.10 - Bhendi 0.10 - 0.00 - 10.00",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Tomato",
+    "page": 337,
+    "content": "0.10 - - 0.10 -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (15 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Bitter gourd",
+    "page": 337,
+    "content": "0.10 - 0.00 - 5.00 Ash gourd 0.10 - - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (41 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Bottle gourd",
+    "page": 337,
+    "content": "0.01 - - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Pumpkin",
+    "page": 337,
+    "content": "0.10 - - - -",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Cowpea",
+    "page": 338,
+    "content": "Cluster beans Field beans Beans Bhendi",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Bitter gourd",
+    "page": 338,
+    "content": "Sponge gourd",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Cucumber",
+    "page": 338,
+    "content": "Snake gourd Watermelon",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Cabbage",
+    "page": 338,
+    "content": "Knol-khol Carrot Radish",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (23 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Tomato",
+    "page": 338,
+    "content": "Chilies",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (7 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Capsicum",
+    "page": 338,
+    "content": "Greens Fenugreek Basella",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (24 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Cowpea",
+    "page": 417,
+    "content": "Cluster beans Field beans Beans Bhendi",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (38 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Bitter gourd",
+    "page": 417,
+    "content": "Sponge gourd",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Cucumber",
+    "page": 417,
+    "content": "Snake gourd Watermelon",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Cabbage",
+    "page": 417,
+    "content": "Knol-khol Carrot Radish",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (23 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Tomato",
+    "page": 417,
+    "content": "Chillies",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (8 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Capsicum",
+    "page": 417,
+    "content": "Greens Fenugreek Basella",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (24 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Mango",
+    "page": 422,
+    "content": "Mangifera indica L. Ma Mamidi Manga Marinna",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (43 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "HORTICULTURE.pdf",
+    "state": "Tamil Nadu",
+    "category": "Vegetables",
+    "crop": "Grapes",
+    "page": 424,
+    "content": "Dimethoate Fenthion 0.06 0.05 4.",
+    "language": "en",
+    "validation_errors": [
+      "Content too short (32 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Castor",
+    "page": 2,
+    "content": "૧. દિવેલાની વૈજ્ઞાનનક ખેતી",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (26 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Cotton",
+    "page": 8,
+    "content": "૨. િીટી કપાસની વૈજ્ઞાનનક ખેતી પધ્ધનત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Cotton",
+    "page": 13,
+    "content": "(૬) કપાસના લાલ પાન :",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (20 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Cotton",
+    "page": 14,
+    "content": "કપાસની ગુલાિી ઈયળ ",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Cotton",
+    "page": 15,
+    "content": "િીટી કપાસની ફરતે નોન િીટીની વાવર્ી અવશ્ય કરવી ",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (47 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Cotton",
+    "page": 19,
+    "content": "કપાસની વીર્ી:",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (13 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Sugarcane",
+    "page": 20,
+    "content": "૪. શેરડીની ખેતી પધ્ધનત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Mustard",
+    "page": 26,
+    "content": "ટરાઈકોકાડાનો ભાગ ખુલ્લો રિે તે રીતે સ્ટેપલ કરવા.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Kharif",
+    "source": "Cash_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Cash Crops",
+    "crop": "Sugarcane",
+    "page": 26,
+    "content": "જમીનમાાં શેરડીની રોપર્ી કરવી નિીં. ",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Wheat",
+    "page": 2,
+    "content": "૧. ઘઉંની વૈજ્ઞામનક ખેતી પધ્ધમત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Rice",
+    "page": 8,
+    "content": "૨. ખરીફ ડાાંગરની વૈજ્ઞામનક ખેતી",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Mustard",
+    "page": 8,
+    "content": "બનાવવાિાાં વપરાય છે.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (20 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Rice",
+    "page": 9,
+    "content": "રોપાણ ડાાંગર  – રપ થી ૩૦ કકલો/હે.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Rice",
+    "page": 12,
+    "content": "ડાાંગરિાાં જીવાત મનયાંત્રણ િાટેના પગલાાંઓ:",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Rice",
+    "page": 13,
+    "content": "ડાાંગરના રોગો અને તેનુાં મનયાંત્રણ:",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Rice",
+    "page": 14,
+    "content": "ડાાંગરની ‘સીરા’પધ્ધમતનાના અગત્યના િુદ્રાઓ:",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Bajra",
+    "page": 15,
+    "content": "૩.૧. બાજરીની આદશષ ખેતી પધ્ધમત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (29 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Jowar",
+    "page": 24,
+    "content": "જુવારિાાં આાંતરપાક:",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Jowar",
+    "page": 26,
+    "content": "આ જીવાતના ઉપદ્રવની શરૂઆતિાાં એટલે કે જુવાર ૨૫-૩૦",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Cotton",
+    "page": 38,
+    "content": "અને   કપાસને નુકશાન કરે છે.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (27 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Cereals.pdf",
+    "state": "Gujarat",
+    "category": "Cereal Crops",
+    "crop": "Sugarcane",
+    "page": 41,
+    "content": "શેરડી મવગેરે પાકોિાાં નુકશાન કરતી જોવા િળે છે.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (46 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Groundnut",
+    "page": 2,
+    "content": "મગફળીનુાં વ વેતર થ ય છે. આબોહવ  અને જમીન :",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (42 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Groundnut",
+    "page": 3,
+    "content": "ચોમ સુ મગફળી",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Groundnut",
+    "page": 3,
+    "content": "ઉન ળુ મગફળી વ વણી સમય",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (21 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Groundnut",
+    "page": 3,
+    "content": "મગફળીની જાતોનુાં વ વેતર કરવુાં. ઉન ળુાં",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Moong",
+    "page": 3,
+    "content": "ક મગીરી ચોમ સુ વરસ દ થ ય તે પહેલ ાં પૂણગ",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Groundnut",
+    "page": 8,
+    "content": "મગફળીન ક તર ",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (13 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Sesame",
+    "page": 10,
+    "content": "૨. તલની સાંનિપ્ત ખેતી પધ્ધનત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (28 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Sesame",
+    "page": 10,
+    "content": "(અ) ઉન ળુ તલની સાંનિપ્ત ખેતી પધ્ધનત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Sesame",
+    "page": 10,
+    "content": "તલની આનથગક અગત્યત :",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Sesame",
+    "page": 10,
+    "content": "તલન  દ ણ મ ાં ૩૮ થી ૫૪ ટક  તેલ અને સ રી",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (39 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Oilseeds.pdf",
+    "state": "Gujarat",
+    "category": "Oilseed Crops",
+    "crop": "Sesame",
+    "page": 14,
+    "content": "(બ) ચોમ સુ તલની સાંનિપ્ત ખેતી પધ્ધનત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Pulses.pdf",
+    "state": "Gujarat",
+    "category": "Pulse Crops",
+    "crop": "Bajra",
+    "page": 2,
+    "content": "(૨) બાજરી અને મઠ – ૨:૨ ના પ્રમાણમા ફાયદાકારક છે.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Pulses.pdf",
+    "state": "Gujarat",
+    "category": "Pulse Crops",
+    "crop": "Cowpea",
+    "page": 9,
+    "content": "૩.વાલની ખેતી સુધારેલ જાતો",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Pulses.pdf",
+    "state": "Gujarat",
+    "category": "Pulse Crops",
+    "crop": "Chickpea",
+    "page": 10,
+    "content": "૪. નપયત ચણાની ખેતી સુધારેલ જાતો",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (31 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Pulses.pdf",
+    "state": "Gujarat",
+    "category": "Pulse Crops",
+    "crop": "Chickpea",
+    "page": 11,
+    "content": "૫. નબન૫નપયત ચણાની ખેતી સુધારેલ જાતો",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (35 chars)"
+    ]
+  },
+  {
+    "season": "Kharif-Rabi",
+    "source": "Pulses.pdf",
+    "state": "Gujarat",
+    "category": "Pulse Crops",
+    "crop": "Soybean",
+    "page": 12,
+    "content": "૬. સોયાબીનની ખેતી",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (17 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Groundnut",
+    "page": 2,
+    "content": "ઉનાળુ મગફળીની સાંક્ષિપ્ત ખેતી પધ્ધતત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Sesame",
+    "page": 2,
+    "content": "ઉનાળુ તલની સાંક્ષિપ્ત ખેતી પધ્ધતત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Bajra",
+    "page": 4,
+    "content": "ઉનાળુ બાજરીની સાંક્ષિપ્ત ખેતી પધ્ધતત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (36 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Groundnut",
+    "page": 10,
+    "content": "અધસ વેલડી મગફળીનુાં વાવેતર થાય છે.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (34 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Groundnut",
+    "page": 11,
+    "content": "થયેલ હોય ત્યારે જ મગફળી કાઢવાની શરુઆત કરવી.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (43 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Sesame",
+    "page": 16,
+    "content": "ઉનાળુ તલની સાંક્ષિપ્ત ખેતી પધ્ધતત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Sesame",
+    "page": 16,
+    "content": "તલનો પાક અગત્યનો ખાધ તેલીબીયાાંનો પાક",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (37 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Sesame",
+    "page": 16,
+    "content": "તલની આર્થથક અગત્યતા:",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (20 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Moong",
+    "page": 21,
+    "content": "ઉનાળુ મગની સાંક્ષિપ્ત ખેતી પધ્ધતત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Moong",
+    "page": 22,
+    "content": "મગ-૫ ગુજરાત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (11 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Moong",
+    "page": 22,
+    "content": "મગ-૬ ગુજરાત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (11 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Moong",
+    "page": 22,
+    "content": "મગ-૭ ગુજરાત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (11 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Moong",
+    "page": 24,
+    "content": "મગની જીવાતો:",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (12 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Moong",
+    "page": 26,
+    "content": "મગમાાં આવતા નવનવધ રોગ:",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (22 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Jowar",
+    "page": 28,
+    "content": "ઘાસચારાના જુવાર પાકની વૈજ્ઞાનનક ખેતી ૫દ્ધતત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (43 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Jowar",
+    "page": 28,
+    "content": "રાજયોમાાં જુવારના પાકનુાં વાવેતર થાય છે.",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Moong",
+    "page": 28,
+    "content": "સમગ્ર ગુજરાત બહુ કા૫િી એસએસજી-૫૯-૩ ૬૦-૬૫",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (40 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Moong",
+    "page": 28,
+    "content": "સમગ્ર ગુજરાત બહુ કા૫િી ખેતી ૫દ્ધતતઃ જમીનઃ",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (41 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Maize",
+    "page": 32,
+    "content": "ઘાસચારાના મકાઈ પાકની પાકની વૈજ્ઞાનનક ખેતી ૫દ્ધતત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Maize",
+    "page": 33,
+    "content": "ગુજરાત મકાઈ-૧ ૫૦-૬૦",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Bajra",
+    "page": 35,
+    "content": "ઘાસચારાની રજકા બાજરી પાકની વૈજ્ઞાનનક ખેતી ૫દ્ધતત",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (48 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Bajra",
+    "page": 35,
+    "content": "રજકા બાજરીઃ ગુજરાત ઘાસચારા",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (26 chars)"
+    ]
+  },
+  {
+    "season": "Summer",
+    "source": "Summer_Crops.pdf",
+    "state": "Gujarat",
+    "category": "Summer Crops",
+    "crop": "Bajra",
+    "page": 35,
+    "content": "રજકા બાજરી :આિાંદ ઘાસચારા",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (25 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Schematic_Book_of_Agriculture.pdf",
+    "state": "Gujarat",
+    "category": "Agricultural Schemes",
+    "crop": "Moong",
+    "page": 15,
+    "content": "બાંડ ફોમગર (પી.ટી.ઓ . ઓપરેટેડ) ૧.૨૦ ૧.૫૦ ૧.૫૦",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (45 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Schematic_Book_of_Agriculture.pdf",
+    "state": "Gujarat",
+    "category": "Agricultural Schemes",
+    "crop": "Moong",
+    "page": 19,
+    "content": "૧૭૧ હે રેક (૬ આમગ) ૧.૩૨ ૧.૬૫ ૧.૬૫",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Schematic_Book_of_Agriculture.pdf",
+    "state": "Gujarat",
+    "category": "Agricultural Schemes",
+    "crop": "Moong",
+    "page": 19,
+    "content": "૧૭૨ હે રેક (૯ આમગ) ૧.૬૦ ૨.૦૦ ૨.૦૦",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (33 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Schematic_Book_of_Agriculture.pdf",
+    "state": "Gujarat",
+    "category": "Agricultural Schemes",
+    "crop": "Moong",
+    "page": 31,
+    "content": "હે રેક (૬ આમગ) ૧.૬૫",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Schematic_Book_of_Agriculture.pdf",
+    "state": "Gujarat",
+    "category": "Agricultural Schemes",
+    "crop": "Moong",
+    "page": 31,
+    "content": "હે રેક (૯ આમગ) ૨.૦૦",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (19 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Schematic_Book_of_Agriculture.pdf",
+    "state": "Gujarat",
+    "category": "Agricultural Schemes",
+    "crop": "Sugarcane",
+    "page": 59,
+    "content": "શેરડી પાકિાાં િાિેતર માટે સહાય",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (30 chars)"
+    ]
+  },
+  {
+    "season": "Annual",
+    "source": "Schematic_Book_of_Agriculture.pdf",
+    "state": "Gujarat",
+    "category": "Agricultural Schemes",
+    "crop": "Moong",
+    "page": 64,
+    "content": "સબાંવધત કામગીરી માટે િર િિે",
+    "language": "gu",
+    "validation_errors": [
+      "Content too short (27 chars)"
     ]
   }
 ]

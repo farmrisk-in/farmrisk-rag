@@ -1,5 +1,30 @@
+# Environment Variables & Secrets
 .env
-venv
-__pycache__
-.venv
-.env.example
+.env.local
+.env.*.local
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing & Linting
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Hugging Face & Model Caches
+.hf_cache/
+.cache/
+
+# Editor & OS Artifacts
+.DS_Store
+Thumbs.db
+.idea/
