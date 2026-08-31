@@ -64,8 +64,11 @@ def main():
                 "page": r["page"],
                 "chunk_id": idx,
                 "content": chunk_content.strip(),
-                "token_count": count_tokens(chunk_content)
+                "token_count": count_tokens(chunk_content),
+                "language": r.get("language", "en")
             }
+            if "zone" in r:
+                chunk_record["zone"] = r["zone"]
             all_chunks.append(chunk_record)
             
     output_file = PARSED_DIR / "chunks.json"
