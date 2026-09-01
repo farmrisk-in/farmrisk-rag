@@ -8,9 +8,10 @@ Aggregates all API feature routers:
 
 from fastapi import APIRouter
 
-from app.api.health import router as health_router
-from app.api.location import router as location_router, resolver as location_resolver
 from app.api.advisory import router as advisory_router
+from app.api.health import router as health_router
+from app.api.location import resolver as location_resolver
+from app.api.location import router as location_router
 
 api_router = APIRouter()
 api_router.include_router(health_router)

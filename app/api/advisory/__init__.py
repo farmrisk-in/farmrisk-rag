@@ -5,6 +5,7 @@ Aggregates all advisory-related feature routers:
   - weather_summary.py -> POST /api/advisory/weather-summary (24h weather summary)
   - pest_card.py       -> POST /api/advisory/pest-card (crop-specific pest & disease card)
   - what_to_do.py      -> POST /api/advisory/what-to-do (daily action recommendations)
+  - presowing.py       -> POST /api/advisory/pre-sowing (all 7 pre-sowing sections)
 
 To add a new feature:
   1. Create your endpoint in a new file (e.g. `irrigation.py`).
@@ -21,6 +22,7 @@ from app.api.advisory.overview import router as overview_router
 from app.api.advisory.weather_summary import router as weather_summary_router
 from app.api.advisory.pest_card import router as pest_card_router
 from app.api.advisory.what_to_do import router as what_to_do_router
+from app.api.advisory.presowing import router as presowing_router
 from app.api.advisory.dependencies import (
     context_builder,
     advisory_engine,
@@ -37,6 +39,7 @@ router.include_router(overview_router)
 router.include_router(weather_summary_router)
 router.include_router(pest_card_router)
 router.include_router(what_to_do_router)
+router.include_router(presowing_router)
 
 __all__ = [
     "router",
@@ -44,6 +47,7 @@ __all__ = [
     "weather_summary_router",
     "pest_card_router",
     "what_to_do_router",
+    "presowing_router",
     "context_builder",
     "advisory_engine",
     "translation_service",
