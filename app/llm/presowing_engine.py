@@ -52,6 +52,7 @@ class PresowingEngine:
         soil_type: str,
         season: str,
         irrigation_type: str,
+        target_language: str,
         rag_chunks: List[Dict[str, Any]],
     ) -> str:
         """
@@ -85,6 +86,7 @@ class PresowingEngine:
             soil_type=soil_type,
             season=season,
             irrigation_type=irrigation_type,
+            target_language=target_language,
         )
 
         return user_prompt
@@ -96,10 +98,11 @@ class PresowingEngine:
         soil_type: str,
         season: str,
         irrigation_type: str,
+        target_language: str,
         rag_chunks: List[Dict[str, Any]],
     ) -> PresowingSections:
         """
-        Generate all 7 sections in one LLM call.
+        Generate all 7 sections in one LLM call in the target language.
         Primary: Gemini | Fallback: Groq
         """
         prompt = self._build_prompt(
@@ -108,6 +111,7 @@ class PresowingEngine:
             soil_type=soil_type,
             season=season,
             irrigation_type=irrigation_type,
+            target_language=target_language,
             rag_chunks=rag_chunks,
         )
 

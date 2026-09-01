@@ -40,6 +40,33 @@ _STATES: List[str] = _json.loads((_BASE / "config" / "states.json").read_text())
 _CROPS_LOWER = {c.lower(): c for c in _CROPS}
 _STATES_LOWER = {s.lower(): s for s in _STATES}
 
+LANGUAGE_MAP: Dict[str, str] = {
+    "en": "English",
+    "english": "English",
+    "hi": "Hindi",
+    "hindi": "Hindi",
+    "gu": "Gujarati",
+    "gujarati": "Gujarati",
+    "pa": "Punjabi",
+    "punjabi": "Punjabi",
+    "ta": "Tamil",
+    "tamil": "Tamil",
+    "te": "Telugu",
+    "telugu": "Telugu",
+    "mr": "Marathi",
+    "marathi": "Marathi",
+    "bn": "Bengali",
+    "bengali": "Bengali",
+    "kn": "Kannada",
+    "kannada": "Kannada",
+    "ml": "Malayalam",
+    "malayalam": "Malayalam",
+    "ur": "Urdu",
+    "urdu": "Urdu",
+    "or": "Odia",
+    "odia": "Odia",
+}
+
 # ---------------------------------------------------------------------------
 # Router
 # ---------------------------------------------------------------------------
@@ -64,6 +91,7 @@ class PresowingRequest(BaseModel):
     soil_type      : Soil classification — drives fertilizer, irrigation, and field prep advice
     season         : Kharif | Rabi | Zaid (defaults to Kharif if not provided)
     irrigation_type: flood | drip | sprinkler | rainfed (defaults to flood)
+    language       : Target language code ('en', 'hi', 'gu', 'pa', 'ta', 'te', 'mr') or name ('English', 'Hindi', 'Gujarati', etc.)
     """
 
     crop: str = Field(
@@ -103,6 +131,11 @@ class PresowingRequest(BaseModel):
         default="flood",
         description="Primary irrigation method — adjusts fertilizer scheduling and water amounts",
     )
+    language: str = Field(
+        default="en",
+        description="Target language code (e.g. 'en', 'hi', 'gu', 'pa', 'ta', 'te', 'mr') or language name ('English', 'Hindi', 'Gujarati', etc.)",
+        examples=["en", "gu", "hi", "pa"],
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -115,6 +148,7 @@ class PresowingResponse(BaseModel):
     season: str
     soil_type: str
     irrigation_type: str
+    language: str
     generated_at: str
     rag_sources_used: int
     runtime_seconds: float
@@ -161,9 +195,13 @@ async def generate_presowing_advisory(request: PresowingRequest) -> PresowingRes
             ),
         )
 
+    raw_lang = (request.language or "en").strip().lower()
+    target_language = LANGUAGE_MAP.get(raw_lang, request.language.strip().title())
+
     logger.info(
         f"Presowing request | crop={crop_canonical} state={state_canonical} "
-        f"soil={request.soil_type} season={request.season} irrig={request.irrigation_type}"
+        f"soil={request.soil_type} season={request.season} irrig={request.irrigation_type} "
+        f"lang={target_language}"
     )
 
     # --- RAG: Retrieve knowledge chunks for this crop+state combo ---
@@ -203,6 +241,7 @@ async def generate_presowing_advisory(request: PresowingRequest) -> PresowingRes
             soil_type=request.soil_type,
             season=request.season,
             irrigation_type=request.irrigation_type,
+            target_language=target_language,
             rag_chunks=rag_chunks,
         )
     except PresowingGenerationError as e:
@@ -218,6 +257,7 @@ async def generate_presowing_advisory(request: PresowingRequest) -> PresowingRes
         season=request.season,
         soil_type=request.soil_type,
         irrigation_type=request.irrigation_type,
+        language=target_language,
         generated_at=datetime.now(timezone.utc).isoformat(),
         rag_sources_used=len(rag_chunks),
         runtime_seconds=runtime,

@@ -57,13 +57,16 @@ OUTPUT CONTRACT — follow these rules exactly:
    - Black/clay soil → fewer irrigations, watch waterlogging, higher K retention
    - Sandy loam → more frequent irrigation, higher organic matter needs
    - Loam → standard recommendations
-   - Laterite → micronutrient-deficient, emphasize Zn/Fe/B supplementation
+8. LANGUAGE INSTRUCTION:
+   Generate the advisory content, table headers, table cells, bullet points, and callout warnings in the specified Target Language.
+   - Standard chemical formulations (e.g. Pendimethalin 30 EC, DAP) and variety names (e.g. GJG-22, PBW 343) should be accurate in the target language, optionally accompanied by the English/Latin term in parentheses.
+   - The 7 JSON keys MUST remain in English: "sowing_window", "seed_selection", "field_preparation", "fertilizer_plan", "irrigation", "weed_management", "pest_disease".
 """
 
 # ---------------------------------------------------------------------------
 # USER PROMPT TEMPLATE
 # Edit this to change what context is given per request.
-# Variables injected via .format(): crop, state, soil_type, season, irrigation_type
+# Variables injected via .format(): crop, state, soil_type, season, irrigation_type, target_language
 # ---------------------------------------------------------------------------
 
 PRESOWING_USER_TEMPLATE = """Generate a complete pre-sowing advisory for:
@@ -73,20 +76,14 @@ PRESOWING_USER_TEMPLATE = """Generate a complete pre-sowing advisory for:
 - **Soil type:** {soil_type}
 - **Season:** {season}
 - **Irrigation type:** {irrigation_type}
+- **Target Language:** {target_language}
 
 Use {state}-specific SAU/KVK/ICAR recommendations wherever available.
 If {state}-specific data is unavailable for a section, fall back to All-India ICAR guidelines.
 Adjust fertilizer, irrigation, and field prep to the soil type: **{soil_type}**.
 
-Each section value must start with its GFM heading. Use this structure:
+IMPORTANT: Generate the content of all 7 sections entirely in **{target_language}**.
+Do not include outer markdown headings like '### Sowing Window' inside the section strings; start directly with the section's content (e.g. the table or intro text).
 
-sowing_window  → ### 🗓️ Sowing Window
-seed_selection → ### 🌱 Seed Selection
-field_preparation → ### 🔧 Field Preparation
-fertilizer_plan   → ### 🧪 Fertilizer Plan
-irrigation        → ### 💧 Irrigation Schedule
-weed_management   → ### 🌿 Weed Management
-pest_disease      → ### 🪲 Pest & Disease Calendar
-
-Now return the JSON with exactly 7 keys for **{crop}** in **{state}**:
+Now return the JSON with exactly 7 keys for **{crop}** in **{state}** in **{target_language}**:
 """
