@@ -15,9 +15,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file and install dependencies
+# Upgrade pip and pre-install lightweight PyTorch CPU wheel
+# This avoids downloading 2.5GB of heavy CUDA packages from PyPI that cause ReadTimeoutError
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --default-timeout=1000 torch --index-url https://download.pytorch.org/whl/cpu
+
+# Copy the requirements file and install dependencies with increased timeout & retries
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=1000 --retries 10 -r requirements.txt
 
 # Copy the model download script and pre-download the model
 COPY download_models.py .
