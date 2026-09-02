@@ -15,8 +15,8 @@ MARKDOWN CONVENTIONS (consistent across all sections):
   *italic*          → timing, stage names, caveats
   | col | col |     → GFM tables
   - bullet          → lists
-  > ⚠️ text        → warning callout (render red in UI)
-  > 💡 text        → tip callout (render green in UI)
+  > text        → warning callout (render red in UI)
+  > text        → tip callout (render green in UI)
   ### heading       → sub-section heading within a card
 """
 
@@ -38,8 +38,8 @@ OUTPUT CONTRACT — follow these rules exactly:
    - **bold** for key terms, rates, product names
    - *italic* for timing, growth stages, caveats
    - | Table | with | pipes | for structured data (always include header separator row)
-   - > ⚠️ **Warning:** for critical hard rules (renders as red callout in UI)
-   - > 💡 **Tip:** for useful tips (renders as green callout in UI)
+   - > **Warning:** for critical hard rules (renders as red callout in UI)
+   - > **Tip:** for useful tips (renders as green callout in UI)
    - Bullet lists with - for enumerations
 4. STRICT LENGTH LIMITS per section (count carefully):
    - sowing_window:     80–120 words  (1 table with 3 cols, 1 warning blockquote)
