@@ -20,7 +20,7 @@ class LocationInput(BaseModel):
     lat: float
     lng: float
     name: str
-    displayName: str
+    displayName: Optional[str] = ""
 
 
 # ---------------------------------------------------------------------------
@@ -29,9 +29,9 @@ class LocationInput(BaseModel):
 
 class CalendarEventInput(BaseModel):
     crop: str
-    season: str
-    sowingPeriod: str
-    harvestingPeriod: str
+    season: Optional[str] = "General"
+    sowingPeriod: Optional[str] = ""
+    harvestingPeriod: Optional[str] = ""
     sowFromMon: Optional[int] = None
     sowToMon: Optional[int] = None
     harvFromMon: Optional[int] = None
@@ -114,12 +114,12 @@ class GridUsedInput(BaseModel):
 
 class DailyForecastCorrectionInput(BaseModel):
     date: str
-    tmax_raw: float
-    tmax_corrected: float
-    tmin_raw: float
-    tmin_corrected: float
-    pcp_raw: float
-    pcp_corrected: float
+    tmax_raw: Optional[float] = 0.0
+    tmax_corrected: Optional[float] = 0.0
+    tmin_raw: Optional[float] = 0.0
+    tmin_corrected: Optional[float] = 0.0
+    pcp_raw: Optional[float] = 0.0
+    pcp_corrected: Optional[float] = 0.0
 
 
 class ForecastLocationInput(BaseModel):
@@ -140,18 +140,18 @@ class ForecastBlockInput(BaseModel):
 
 class SoilMoistureRecordInput(BaseModel):
     date: str
-    P_obs: float
-    Tmean: float
-    PE: float
-    P_eff: float
-    snowpack: float
-    w: float
-    E: float
-    R: float
-    G: float
-    w_frac: float
-    sm_percentile: float
-    is_forecast: int                    # 0 = historical, 1 = forecast
+    P_obs: Optional[float] = 0.0
+    Tmean: Optional[float] = 0.0
+    PE: Optional[float] = 0.0
+    P_eff: Optional[float] = 0.0
+    snowpack: Optional[float] = 0.0
+    w: Optional[float] = 0.0
+    E: Optional[float] = 0.0
+    R: Optional[float] = 0.0
+    G: Optional[float] = 0.0
+    w_frac: Optional[float] = 0.0
+    sm_percentile: Optional[float] = 50.0
+    is_forecast: Optional[int] = 0
 
 
 class SoilMoistureLocationInput(BaseModel):

@@ -113,12 +113,16 @@ class AdvisoryContextBuilder:
 
     def _build_crop_context(self, req: AIAdvisoryRequest) -> CropContext:
         crop_id = req.cropId.lower().strip()
+        if crop_id.startswith("custom_"):
+            crop_id = crop_id[7:].strip()
         calendar = req.calendarData.calendar
 
         # Find the matching calendar entry
         matched_entry = None
         for entry in calendar:
-            if entry.crop.lower().replace(" ", "").replace("-", "") == crop_id.replace(" ", "").replace("-", ""):
+            entry_clean = entry.crop.lower().replace(" ", "").replace("-", "")
+            id_clean = crop_id.replace(" ", "").replace("-", "")
+            if entry_clean == id_clean:
                 matched_entry = entry
                 break
             # Also try simple contains

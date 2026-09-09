@@ -174,26 +174,14 @@ async def generate_presowing_advisory(request: PresowingRequest) -> PresowingRes
     """
     t_start = time.perf_counter()
 
-    # --- Normalize and validate crop/state against canonical lists ---
-    crop_canonical = _CROPS_LOWER.get(request.crop.lower())
-    if not crop_canonical:
-        raise HTTPException(
-            status_code=422,
-            detail=(
-                f"Crop '{request.crop}' is not in the supported crop list. "
-                f"Supported crops: {', '.join(_CROPS[:10])}... (see /docs for full list)"
-            ),
-        )
+    # --- Normalize crop/state against canonical lists (with fallback for custom/catalog crops) ---
+    clean_crop = request.crop.strip()
+    if clean_crop.lower().startswith("custom_"):
+        clean_crop = clean_crop[7:].strip()
+    crop_canonical = _CROPS_LOWER.get(clean_crop.lower(), clean_crop.title())
 
-    state_canonical = _STATES_LOWER.get(request.state.lower())
-    if not state_canonical:
-        raise HTTPException(
-            status_code=422,
-            detail=(
-                f"State '{request.state}' is not in the supported state list. "
-                f"Supported states: {', '.join(_STATES[:8])}... (see /docs for full list)"
-            ),
-        )
+    clean_state = request.state.strip()
+    state_canonical = _STATES_LOWER.get(clean_state.lower(), clean_state.title())
 
     raw_lang = (request.language or "en").strip().lower()
     target_language = LANGUAGE_MAP.get(raw_lang, request.language.strip().title())
