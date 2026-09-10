@@ -1,0 +1,698 @@
+import os
+import asyncio
+import json
+import re
+from typing import Optional, List, Dict, Any
+from pathlib import Path
+from dotenv import load_dotenv
+
+_BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=_BASE_DIR / ".env")
+
+# ==============================================================================
+# CONFIGURATION - Loaded from environment / config with defaults
+# ==============================================================================
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "") or os.getenv("GEMINI_API_KEY", "")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+PROVIDER = os.getenv("LLM_PROVIDER", "gemini")
+
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+# ==============================================================================
+# EDIT HERE — thresholds for the three weather-driven to-do actions
+# Grounded in IMD operational warning bands (per-day / 24-hr):
+#   Rain (mm/day): Light 2.5-15.5, Moderate 15.6-64.4, Heavy 64.5-115.5,
+#                  Very Heavy 115.6-204.4, Extremely Heavy >204.4
+#   Heat (plains): heatwave >=40 C, severe heatwave >=45 C (coastal 37, hilly 30)
+#   Cold        : cold-wave watch when tmin drops well below normal (default <=8 C)
+#   Wind (gust) : IMD bands 30-40, 40-50 kmph; >=50 damaging
+# ==============================================================================
+STATION_TYPE = "plains"  # plains / coastal / hilly
+
+# --- Rain thresholds (mm) ---
+RAIN_24H_HEAVY = 64.5          # heavy rain in next 24h -> act now
+RAIN_24H_MODERATE = 15.6       # moderate rain in next 24h
+RAIN_5D_VERYHEAVY = 115.6      # very heavy over window -> drainage
+RAIN_5D_HEAVY = 64.5           # heavy over window -> drainage prep
+
+# --- Rain SPELL thresholds (cm/hour — IMD "Category of Rain Spell") ---
+# Light 1, Moderate 1-2, Intense 2-3, Very Intense 3-5,
+# Extremely Intense 5-10, Cloud Burst >10 cm/hour.
+# Spell drives the card only when it reaches Moderate+ (>=1 cm/hr = 10 mm/hr);
+# below that we fall back to the daily IMD band.
+SPELL_MIN_MMH = 10.0           # 1 cm/hr — Moderate spell floor to override daily
+
+# --- Temperature thresholds (C) ---
+HEAT_THRESHOLD = {"plains": 40.0, "coastal": 37.0, "hilly": 30.0}
+HEAT_SEVERE = 45.0
+COLD_TMIN = 8.0                # tmin at/below this -> cold-stress action
+
+# --- Wind thresholds (km/h gusts) ---
+WIND_DAMAGING = 50.0           # lodging / structural risk
+WIND_SPRAY = 40.0             # drift -> postpone spraying
+
+# Severity ranks: higher = more urgent (used for sorting)
+SEV = {"unfavorable": 3, "cautionary": 2, "favorable": 1}
+
+
+# ==============================================================================
+# IMD 24-HOUR RAINFALL CLASSIFICATION (rainfall ending 0830 IST)
+#   Very Light 0-2.4, Light 2.5-15.5, Moderate 15.6-64.4, Heavy 64.5-115.5,
+#   Very Heavy 115.6-204.4, Extremely Heavy >=204.5 mm
+# Used for the farmer-facing category WORD; mm value stays available too.
+# ==============================================================================
+def rain_word(mm: Optional[float]) -> str:
+    """Map a 24-hour rainfall total (mm) to its IMD category word."""
+    if mm is None:            return ""
+    if mm >= 204.5:  return "Extremely Heavy Rain"
+    if mm >= 115.6:  return "Very Heavy Rain"
+    if mm >= 64.5:   return "Heavy Rain"
+    if mm >= 15.6:   return "Moderate Rain"
+    if mm >= 2.5:    return "Light Rain"
+    if mm > 0:       return "Very Light Rain"
+    return "No Rain"
+
+
+# ==============================================================================
+# IMD RAIN SPELL CLASSIFICATION (peak hourly intensity)
+#   Light 1, Moderate 1-2, Intense 2-3, Very Intense 3-5,
+#   Extremely Intense 5-10, Cloud Burst >10 cm/hour.
+# Input here is mm/hour (1 cm/hr = 10 mm/hr).
+# ==============================================================================
+def spell_word(mmph: Optional[float]) -> str:
+    """Map a peak hourly rain intensity (mm/hour) to its IMD spell category."""
+    if mmph is None:          return ""
+    cmph = mmph / 10.0
+    if cmph > 10:   return "Cloud Burst"
+    if cmph >= 5:   return "Extremely Intense spell"
+    if cmph >= 3:   return "Very Intense spell"
+    if cmph >= 2:   return "Intense spell"
+    if cmph >= 1:   return "Moderate spell"
+    if cmph > 0:    return "Light spell"
+    return ""
+
+
+# Severity attached to each spell band (drives whether a spell escalates the card).
+_SPELL_SEV = {
+    "Light spell": "cautionary",
+    "Moderate spell": "cautionary",
+    "Intense spell": "unfavorable",
+    "Very Intense spell": "unfavorable",
+    "Extremely Intense spell": "unfavorable",
+    "Cloud Burst": "unfavorable",
+}
+
+
+def _peak_hour(series: Optional[List[float]]):
+    """Return (peak_value, hour_index) for an hourly series, or (None, None)."""
+    if not series:
+        return None, None
+    peak_val = None
+    peak_idx = None
+    for i, v in enumerate(series):
+        if v is None:
+            continue
+        if peak_val is None or v > peak_val:
+            peak_val = v
+            peak_idx = i
+    return peak_val, peak_idx
+
+
+def _hour_phrase(hour_idx: Optional[int]) -> str:
+    """Relative timing phrase for an hour offset from now (0 = current hour)."""
+    if hour_idx is None:
+        return ""
+    if hour_idx <= 0:            return "within the hour"
+    if hour_idx == 1:           return "in about 1 hour"
+    if hour_idx < 24:           return f"in about {hour_idx} hours"
+    day = hour_idx // 24
+    if day == 1:                return "tomorrow"
+    return f"in about {day} days"
+
+
+# ==============================================================================
+# DETERMINISTIC DECISION ENGINE
+# Code decides WHAT the action is and its severity + timing.
+# The LLM only rephrases each action into a farmer-facing one-liner.
+# Each candidate: {key, severity, title, why, timing, _sev}
+# ==============================================================================
+def _heat_threshold() -> float:
+    return HEAT_THRESHOLD.get((STATION_TYPE or "plains").strip().lower(), 40.0)
+
+
+def decide_rain_action(
+    rain_hourly_24h: Optional[List[float]] = None,
+    rain_24h: Optional[float] = None,
+    rain_5d: Optional[float] = None,
+    peak_rain_timing: str = "",
+) -> Optional[Dict[str, Any]]:
+    """One rain action, spell-first then daily-band fallback.
+
+    Precedence:
+      1. Peak HOURLY intensity from the 24h forecast -> IMD rain spell.
+         If the spell reaches Moderate+ (>=1 cm/hr), it drives the card.
+      2. Otherwise fall back to the daily IMD band: 24h total first,
+         then 5-day accumulation.
+    """
+    # ---- 1. Hourly spell (24h) ----
+    peak_mmph, peak_hr = _peak_hour(rain_hourly_24h)
+    if peak_mmph is not None and peak_mmph >= SPELL_MIN_MMH:
+        word = spell_word(peak_mmph)
+        sev = _SPELL_SEV.get(word, "cautionary")
+        when = _hour_phrase(peak_hr)
+        when_clause = f" {when}" if when else ""
+        cmph = peak_mmph / 10.0
+        return {
+            "key": "rain",
+            "severity": sev,
+            "title": "Clear field drainage",
+            "why": (
+                f"{word} ({cmph:.1f} cm/hr) expected{when_clause} — "
+                f"sudden runoff and waterlogging risk"
+            ),
+            "timing": "Now" if (peak_hr is not None and peak_hr < 6) else "Today",
+        }
+
+    # ---- 2. Daily IMD band fallback ----
+    r24 = rain_24h if rain_24h is not None else 0.0
+    r5 = rain_5d if rain_5d is not None else 0.0
+
+    if r24 >= RAIN_24H_HEAVY:
+        return {
+            "key": "rain",
+            "severity": "unfavorable",
+            "title": "Clear field drainage",
+            "why": f"{rain_word(r24)} ({r24:.0f} mm) expected in next 24 hours — waterlogging risk",
+            "timing": "Now",
+        }
+
+    if r5 >= RAIN_5D_VERYHEAVY:
+        return {
+            "key": "rain",
+            "severity": "unfavorable",
+            "title": "Clear field drainage",
+            "why": f"very heavy rain ({r5:.0f} mm over 5 days) building{(' ' + peak_rain_timing) if peak_rain_timing else ''}",
+            "timing": "Before rain",
+        }
+
+    if r5 >= RAIN_5D_HEAVY:
+        return {
+            "key": "rain",
+            "severity": "cautionary",
+            "title": "Clear field drainage",
+            "why": f"heavy rain ({r5:.0f} mm over 5 days) ahead{(' ' + peak_rain_timing) if peak_rain_timing else ''}",
+            "timing": "Before rain",
+        }
+
+    if r24 >= RAIN_24H_MODERATE:
+        return {
+            "key": "rain",
+            "severity": "cautionary",
+            "title": "Hold irrigation",
+            "why": f"{rain_word(r24)} ({r24:.0f} mm) expected in next 24 hours",
+            "timing": "Today",
+        }
+
+    return None
+
+
+def decide_temp_action(
+    tmax_24h: Optional[float],
+    tmin_24h: Optional[float],
+    tmax_5d: Optional[float],
+    tmin_5d: Optional[float],
+) -> Optional[Dict[str, Any]]:
+    """One temperature action. Look at the 24h extremes FIRST; only if nothing
+    fires there, fall back to the 5-day daily extremes."""
+    ht = _heat_threshold()
+
+    def _eval(tmax, tmin, near_term):
+        if tmax is not None and tmax >= HEAT_SEVERE:
+            return {
+                "key": "temp",
+                "severity": "unfavorable",
+                "title": "Protect crop from heat",
+                "why": f"severe heat ({tmax:.0f} C) expected — irrigate early morning, avoid midday work",
+                "timing": "Today" if near_term else "This week",
+            }
+        if tmax is not None and tmax >= ht:
+            return {
+                "key": "temp",
+                "severity": "cautionary",
+                "title": "Guard against heat stress",
+                "why": f"high temperatures ({tmax:.0f} C) {'today' if near_term else 'this week'} — water in cooler hours",
+                "timing": "Today" if near_term else "This week",
+            }
+        if tmin is not None and tmin <= COLD_TMIN:
+            return {
+                "key": "temp",
+                "severity": "cautionary",
+                "title": "Protect against cold",
+                "why": f"low temperatures ({tmin:.0f} C) {'tonight' if near_term else 'this week'} — cold-stress risk",
+                "timing": "Tonight" if near_term else "This week",
+            }
+        return None
+
+    # 24h first
+    action = _eval(tmax_24h, tmin_24h, near_term=True)
+    if action is not None:
+        return action
+
+    # fall back to 5-day daily extremes
+    return _eval(tmax_5d, tmin_5d, near_term=False)
+
+
+def decide_wind_action(
+    gust_hourly_24h: Optional[List[float]] = None,
+    gust_hourly_5d: Optional[List[float]] = None,
+) -> Optional[Dict[str, Any]]:
+    """One wind action from hourly gusts.
+
+    Look at the peak gust in the next 24h FIRST (state when it hits). If nothing
+    significant in 24h, fall back to the 5-day hourly peak.
+    """
+    def _eval(series, window_24h):
+        peak, hr = _peak_hour(series)
+        if peak is None:
+            return None
+
+        if window_24h:
+            when = _hour_phrase(hr)
+            when_clause = f" {when}" if when else ""
+        else:
+            # 5-day window: express the peak day rather than the hour
+            day = (hr // 24) if hr is not None else None
+            if day and day >= 1:
+                when_clause = f" in about {day} day{'s' if day != 1 else ''}"
+            else:
+                when_clause = " later this week"
+
+        if peak >= WIND_DAMAGING:
+            return {
+                "key": "wind",
+                "severity": "unfavorable",
+                "title": "Skip pesticide spraying",
+                "why": f"damaging gusts ({peak:.0f} km/h) expected{when_clause} — drift and lodging risk, resume when winds ease",
+                "timing": "All day",
+            }
+        if peak >= WIND_SPRAY:
+            return {
+                "key": "wind",
+                "severity": "cautionary",
+                "title": "Skip pesticide spraying",
+                "why": f"gusty winds ({peak:.0f} km/h) expected{when_clause} — spray drift risk, resume when winds ease",
+                "timing": "All day",
+            }
+        return None
+
+    # 24h first
+    action = _eval(gust_hourly_24h, window_24h=True)
+    if action is not None:
+        return action
+
+    # fall back to 5-day hourly peak
+    return _eval(gust_hourly_5d, window_24h=False)
+
+
+def build_todos(
+    rain_hourly_24h: Optional[List[float]] = None,
+    rain_24h: Optional[float] = None,
+    rain_5d: Optional[float] = None,
+    peak_rain_timing: str = "",
+    tmax_24h: Optional[float] = None,
+    tmin_24h: Optional[float] = None,
+    tmax_5d: Optional[float] = None,
+    tmin_5d: Optional[float] = None,
+    gust_hourly_24h: Optional[List[float]] = None,
+    gust_hourly_5d: Optional[List[float]] = None,
+) -> List[Dict[str, Any]]:
+    """Return the fired weather actions, sorted most-severe first.
+
+    Deterministic and auditable. Each item carries its own severity + timing.
+    'title' and 'why' here are plain deterministic strings; the LLM step
+    (phrase_todos) later rewrites them into short farmer-facing lines.
+    """
+    candidates = [
+        decide_rain_action(rain_hourly_24h, rain_24h, rain_5d, peak_rain_timing),
+        decide_temp_action(tmax_24h, tmin_24h, tmax_5d, tmin_5d),
+        decide_wind_action(gust_hourly_24h, gust_hourly_5d),
+    ]
+    todos = [c for c in candidates if c is not None]
+
+    # Sort by severity (desc). Stable sort keeps rain > temp > wind on ties,
+    # matching the order candidates were built.
+    todos.sort(key=lambda c: SEV.get(c["severity"], 0), reverse=True)
+
+    for t in todos:
+        t["_sev"] = SEV.get(t["severity"], 0)
+    return todos
+
+
+# ==============================================================================
+# LLM PHRASING STEP (phrase only — never decides or scores)
+# One combined call: rewrites every action into {title, hint} farmer one-liners.
+# Falls back to deterministic strings if no key / call fails.
+# ==============================================================================
+def build_phrasing_prompt(todos: List[Dict[str, Any]], language: str = "English") -> str:
+    lines = []
+    for i, t in enumerate(todos):
+        lines.append(
+            f"[{i}] action_key={t['key']} | severity={t['severity']} | "
+            f"draft_title=\"{t['title']}\" | reason=\"{t['why']}\""
+        )
+    actions_block = "\n".join(lines)
+
+    return (
+        f"You are helping write a farmer's 'What to do today' card for an Indian "
+        f"agro-advisory app. Rewrite each action below into a short, plain, "
+        f"actionable to-do in {language}.\n\n"
+        f"ACTIONS:\n{actions_block}\n\n"
+        f"RULES:\n"
+        f"- For each action, output a 'title' (2-4 words, imperative, e.g. "
+        f"'Clear field drainage', 'Skip pesticide spraying') and a 'hint' "
+        f"(one sentence, max ~12 words, plain farmer language).\n"
+        f"- The ACTION itself is stated plainly. Only forecast-dependent parts "
+        f"(rain, heat, wind expected) may be hedged with 'expected'/'may'.\n"
+        f"- Keep the meaning of the reason; do not invent new numbers, dates, "
+        f"crops, or thresholds. Do not add any number that is not in the reason.\n"
+        f"- No markdown, no emoji, no percentile talk.\n"
+        f"- Return ONLY a JSON array, one object per action IN THE SAME ORDER, "
+        f"each: {{\"index\": <int>, \"title\": <str>, \"hint\": <str>}}. "
+        f"No preamble, no code fences."
+    )
+
+
+def _fallback_phrasing(todos: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+    out = []
+    for t in todos:
+        why = t["why"]
+        hint = why[0].upper() + why[1:] + ("." if not why.endswith(".") else "")
+        out.append({"title": t["title"], "hint": hint})
+    return out
+
+
+def _parse_llm_json(text: str, n: int) -> Optional[List[Dict[str, str]]]:
+    if not text:
+        return None
+    clean = text.strip()
+    clean = re.sub(r"^```(?:json)?|```$", "", clean, flags=re.MULTILINE).strip()
+    try:
+        data = json.loads(clean)
+    except Exception:
+        m = re.search(r"\[.*\]", clean, re.DOTALL)
+        if not m:
+            return None
+        try:
+            data = json.loads(m.group(0))
+        except Exception:
+            return None
+    if not isinstance(data, list) or len(data) != n:
+        return None
+
+    result: List[Optional[Dict[str, str]]] = [None] * n
+    for obj in data:
+        if not isinstance(obj, dict):
+            return None
+        idx = obj.get("index")
+        title = obj.get("title")
+        hint = obj.get("hint")
+        if not isinstance(idx, int) or not (0 <= idx < n):
+            return None
+        if not isinstance(title, str) or not isinstance(hint, str):
+            return None
+        result[idx] = {"title": title.strip(), "hint": hint.strip()}
+    if any(r is None for r in result):
+        return None
+    return result  # type: ignore
+
+
+async def phrase_todos(
+    todos: List[Dict[str, Any]],
+    provider: Optional[str] = None,
+    api_key: Optional[str] = None,
+    language: str = "English",
+) -> List[Dict[str, Any]]:
+    """Attach farmer-facing 'title' and 'hint' to each to-do. LLM phrases;
+    deterministic fallback used when no key / bad output."""
+    if not todos:
+        return []
+
+    prov = (provider or PROVIDER or "gemini").lower().strip()
+    key = api_key or (GOOGLE_API_KEY if prov == "gemini" else GROQ_API_KEY)
+
+    phrased = None
+    if key:
+        prompt = build_phrasing_prompt(todos, language=language)
+        try:
+            if prov == "gemini":
+                raw = await call_gemini(prompt, key)
+            else:
+                raw = await call_groq(prompt, key)
+            phrased = _parse_llm_json(raw, len(todos))
+        except Exception:
+            # Try fallback provider if available
+            fallback_prov = "groq" if prov == "gemini" else "gemini"
+            fallback_key = GROQ_API_KEY if fallback_prov == "groq" else GOOGLE_API_KEY
+            if fallback_key:
+                try:
+                    if fallback_prov == "gemini":
+                        raw = await call_gemini(prompt, fallback_key)
+                    else:
+                        raw = await call_groq(prompt, fallback_key)
+                    phrased = _parse_llm_json(raw, len(todos))
+                except Exception:
+                    phrased = None
+            else:
+                phrased = None
+
+    if phrased is None:
+        phrased = _fallback_phrasing(todos)
+
+    result = []
+    for t, p in zip(todos, phrased):
+        result.append({
+            "key": t["key"],
+            "severity": t["severity"],
+            "timing": t["timing"],
+            "title": p["title"],
+            "hint": p["hint"],
+        })
+    return result
+
+
+# ==============================================================================
+# LLM CALLERS (same style as Risk_urmin.py)
+# ==============================================================================
+async def call_gemini(prompt: str, api_key: str, model_name: Optional[str] = None) -> str:
+    m_name = model_name or GEMINI_MODEL or "gemini-3.1-flash-lite"
+    try:
+        from google import genai
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(model=m_name, contents=prompt)
+        return response.text
+    except Exception:
+        import google.generativeai as google_genai
+        google_genai.configure(api_key=api_key)
+        model = google_genai.GenerativeModel(m_name)
+        response = model.generate_content(prompt)
+        return response.text
+
+
+async def call_groq(prompt: str, api_key: str, model_name: Optional[str] = None) -> str:
+    from groq import Groq
+    client = Groq(api_key=api_key)
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": prompt}],
+        model=model_name or GROQ_MODEL or "llama-3.3-70b-versatile",
+        temperature=0.2,
+    )
+    return chat_completion.choices[0].message.content
+
+
+# ==============================================================================
+# REQUEST PAYLOAD EXTRACTION & ENDPOINT INTEGRATION HELPER
+# ==============================================================================
+def extract_weather_inputs(request: Any) -> Dict[str, Any]:
+    """Derive the weather to-do inputs from an AIAdvisoryRequest payload."""
+    daily = getattr(getattr(request, "weatherData", None), "daily", None)
+    hourly = getattr(getattr(request, "weatherData", None), "hourly", None)
+    current = getattr(getattr(request, "weatherData", None), "current", None)
+    forecast_data = getattr(request, "forecastData", None)
+
+    forecast_days: List[Any] = []
+    if (
+        forecast_data
+        and getattr(forecast_data, "forecast", None)
+        and getattr(forecast_data.forecast, "forecast", None)
+    ):
+        forecast_days = sorted(
+            forecast_data.forecast.forecast, key=lambda d: getattr(d, "date", "")
+        )[:5]
+
+    rain_24h = None
+    if forecast_days:
+        rain_24h = getattr(forecast_days[0], "pcp_corrected", 0.0)
+    elif daily and getattr(daily, "precipitation_sum", None):
+        rain_24h = daily.precipitation_sum[0]
+
+    rain_5d = None
+    if forecast_days:
+        rain_5d = sum(getattr(d, "pcp_corrected", 0.0) or 0.0 for d in forecast_days)
+    elif daily and getattr(daily, "precipitation_sum", None):
+        rain_5d = sum(daily.precipitation_sum[:5])
+
+    tmax_24h = None
+    tmin_24h = None
+    if forecast_days:
+        tmax_24h = getattr(forecast_days[0], "tmax_corrected", None)
+        tmin_24h = getattr(forecast_days[0], "tmin_corrected", None)
+    elif daily and getattr(daily, "temperature_2m_max", None) and getattr(daily, "temperature_2m_min", None):
+        tmax_24h = daily.temperature_2m_max[0]
+        tmin_24h = daily.temperature_2m_min[0]
+    elif current:
+        tmax_24h = getattr(current, "temperature_2m", None)
+        tmin_24h = getattr(current, "temperature_2m", None)
+
+    tmax_5d = None
+    tmin_5d = None
+    if forecast_days:
+        tmax_5d = max(getattr(d, "tmax_corrected", 0.0) for d in forecast_days)
+        tmin_5d = min(getattr(d, "tmin_corrected", 0.0) for d in forecast_days)
+    elif daily and getattr(daily, "temperature_2m_max", None) and getattr(daily, "temperature_2m_min", None):
+        tmax_5d = max(daily.temperature_2m_max[:5])
+        tmin_5d = min(daily.temperature_2m_min[:5])
+    else:
+        tmax_5d = tmax_24h
+        tmin_5d = tmin_24h
+
+    peak_rain_timing = ""
+    if forecast_days:
+        best = max(forecast_days, key=lambda d: getattr(d, "pcp_corrected", 0.0) or 0.0)
+        if (getattr(best, "pcp_corrected", 0.0) or 0.0) >= 2.5:
+            try:
+                from datetime import datetime
+                dt = datetime.strptime(str(getattr(best, "date", ""))[:10], "%Y-%m-%d")
+                peak_rain_timing = f"on {dt.strftime('%d %b')}"
+            except Exception:
+                pass
+
+    gust_hourly_24h = None
+    gust_hourly_5d = None
+    if hourly and getattr(hourly, "wind_speed_10m", None):
+        gust_hourly_24h = hourly.wind_speed_10m[:24]
+        gust_hourly_5d = hourly.wind_speed_10m[:120]
+
+    return {
+        "rain_hourly_24h": None,
+        "rain_24h": rain_24h,
+        "rain_5d": rain_5d,
+        "peak_rain_timing": peak_rain_timing,
+        "tmax_24h": tmax_24h,
+        "tmin_24h": tmin_24h,
+        "tmax_5d": tmax_5d,
+        "tmin_5d": tmin_5d,
+        "gust_hourly_24h": gust_hourly_24h,
+        "gust_hourly_5d": gust_hourly_5d,
+    }
+
+
+async def get_top_weather_todos(
+    request: Any,
+    language: str = "English",
+    top_n: int = 2,
+) -> List[Dict[str, Any]]:
+    """Derive weather inputs from request, build sorted todos, phrase with LLM, and return top_n."""
+    inputs = extract_weather_inputs(request)
+    todos = build_todos(**inputs)
+    if not todos:
+        return []
+
+    top_candidates = todos[:top_n]
+    prov = (PROVIDER or "gemini").lower().strip()
+    key = GOOGLE_API_KEY if prov == "gemini" else GROQ_API_KEY
+
+    phrased = await phrase_todos(
+        top_candidates,
+        provider=prov,
+        api_key=key,
+        language=language,
+    )
+
+    result = []
+    for item in phrased:
+        result.append({
+            "category": "weather",
+            "severity": item.get("severity", "cautionary"),
+            "title": item.get("title", ""),
+            "hint": item.get("hint", ""),
+            "timing": item.get("timing", "Today"),
+            "sources": [],
+            "crop_name": None,
+            "is_general": None,
+        })
+    return result
+
+
+# ==============================================================================
+# DEMO
+# ==============================================================================
+async def main():
+    g_key = GOOGLE_API_KEY or os.getenv("GOOGLE_API_KEY")
+    gr_key = GROQ_API_KEY or os.getenv("GROQ_API_KEY")
+
+    # ---- Mock inputs (change to test) ----
+    # 24h hourly rain (mm/hour), 24 values. A 1.2 cm/hr spike at hour 5.
+    rain_hourly_24h = [0, 0, 0, 1, 3, 12, 4, 2, 0, 0, 0, 0,
+                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    rain_24h = 24.0          # mm total next 24h
+    rain_5d = 78.0           # mm total over 5 days
+    peak_rain_timing = "on 31 Jul"
+
+    tmax_24h = 34.0
+    tmin_24h = 24.0
+    tmax_5d = 41.0           # heatwave shows up only in 5-day window
+    tmin_5d = 23.0
+
+    # 24h hourly gusts (km/h) — calm; 5-day hourly has a 52 km/h peak on day 3.
+    gust_hourly_24h = [15, 18, 20, 22, 20, 18, 16, 14, 12, 10, 12, 14,
+                       16, 18, 20, 22, 24, 22, 20, 18, 16, 14, 12, 10]
+    gust_hourly_5d = [20] * 60 + [30, 40, 52, 48, 35] + [20] * 55
+
+    todos = build_todos(
+        rain_hourly_24h=rain_hourly_24h,
+        rain_24h=rain_24h,
+        rain_5d=rain_5d,
+        peak_rain_timing=peak_rain_timing,
+        tmax_24h=tmax_24h,
+        tmin_24h=tmin_24h,
+        tmax_5d=tmax_5d,
+        tmin_5d=tmin_5d,
+        gust_hourly_24h=gust_hourly_24h,
+        gust_hourly_5d=gust_hourly_5d,
+    )
+
+    print("=" * 70)
+    print("DETERMINISTIC TO-DOS (sorted by severity):")
+    print("=" * 70)
+    for t in todos:
+        print(f"[{t['severity']:>12}] {t['title']} — {t['why']}  ({t['timing']})")
+
+    provider = (PROVIDER or "gemini").lower().strip()
+    key = g_key if provider == "gemini" else gr_key
+
+    print("\n" + "=" * 70)
+    print(f"FARMER-FACING CARD (phrased via {provider.upper() if key else 'FALLBACK'}):")
+    print("=" * 70)
+    card = await phrase_todos(todos, provider, key, language="English")
+    for item in card:
+        print(f"• {item['title']}  [{item['timing']}]")
+        print(f"    {item['hint']}")
+
+    print("\nJSON:")
+    print(json.dumps(card, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

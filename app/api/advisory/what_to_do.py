@@ -64,9 +64,10 @@ async def generate_what_to_do(request: AIAdvisoryRequest):
         )
 
         # ------------------------------------------------------------------
-        # Step 3: Weather to-dos (deterministic, no LLM)
+        # Step 3: Weather to-dos from todo_card.py (LLM-phrased top 2 items)
         # ------------------------------------------------------------------
-        weather_todos = build_weather_todos_from_request(request)
+        from todo_card import get_top_weather_todos
+        weather_todos = await get_top_weather_todos(request, language="English", top_n=2)
 
         # ------------------------------------------------------------------
         # Step 4: Pest & Disease card (shared cache — runs independently of the
@@ -75,9 +76,9 @@ async def generate_what_to_do(request: AIAdvisoryRequest):
         card = await get_or_create_pest_card(request, context)
 
         # ------------------------------------------------------------------
-        # Step 5: Deterministic selection (<= 2 items)
+        # Step 5: Deterministic selection (Pest + Irrigation + 2 Weather = 4 items)
         # ------------------------------------------------------------------
-        items = select_what_to_do(card, irr_result, weather_todos)
+        items = select_what_to_do(card, irr_result, weather_todos, max_items=4)
 
         # ------------------------------------------------------------------
         # Step 6: Translate selected items (title/hint) with dedup lock

@@ -261,14 +261,16 @@ def select_what_to_do(
     pest_card: Optional[Dict[str, Any]],
     irr_result: Optional[Dict[str, Any]],
     weather_todos: List[Dict[str, Any]],
+    max_items: int = 4,
 ) -> List[Dict[str, Any]]:
-    """Deterministically select at most TWO recommendations.
+    """Deterministically select recommendations (up to max_items, default 4).
 
-    Priority:
-      1. best Pest & Disease action (highest band, then per-action priority)
-      2. best Irrigation / Soil Moisture recommendation
-      3. missing slots are filled with the best remaining non-duplicate
-         recommendation (weather to-dos), otherwise dropped.
+    Structure:
+      1. Best Pest & Disease action (highest band, then per-action priority).
+      2. Best Irrigation / Soil Moisture recommendation.
+      3. Top weather to-dos from todo_card.py (up to 2 items).
+      4. If still under max_items (e.g. no pest or irrigation data), fill with
+         remaining weather or pest items.
     """
     pest_items = sorted(
         _pest_items(pest_card),
@@ -285,19 +287,34 @@ def select_what_to_do(
 
     chosen: List[Dict[str, Any]] = []
 
-    def add(item: Optional[Dict[str, Any]]) -> None:
-        if item is None or len(chosen) >= 2:
-            return
+    def add(item: Optional[Dict[str, Any]]) -> bool:
+        if item is None or len(chosen) >= max_items:
+            return False
         if _is_dup(item, chosen):
-            return
+            return False
         chosen.append(item)
+        return True
 
-    add(pest_items[0] if pest_items else None)
-    add(irr_items[0] if irr_items else None)
+    # 1. Best Pest & Disease action (1 item)
+    if pest_items:
+        add(pest_items[0])
 
-    # Fill any still-empty slot with the best remaining (weather) item.
-    for it in weather_items:
-        if len(chosen) >= 2:
+    # 2. Best Irrigation recommendation (1 item)
+    if irr_items:
+        add(irr_items[0])
+
+    # 3. Top weather to-dos (up to 2 items)
+    for it in weather_items[:2]:
+        add(it)
+
+    # 4. Fill any remaining slots up to max_items
+    for it in weather_items[2:]:
+        if len(chosen) >= max_items:
+            break
+        add(it)
+
+    for it in pest_items[1:]:
+        if len(chosen) >= max_items:
             break
         add(it)
 
