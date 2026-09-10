@@ -215,14 +215,17 @@ def _irrigation_items(irr_result: Optional[Dict[str, Any]]) -> List[Dict[str, An
 
 def _weather_items(todos: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     items = []
-    for t in todos[:3]:
+    for t in todos:
         sev = str(t.get("severity", "favorable"))
+        w_key = t.get("key") or t.get("weather_key") or ""
         items.append({
             "category": WEATHER_CATEGORY,
+            "weather_key": w_key,
             "severity": sev,
-            "_rank": WEATHER_SEV.get(sev, 1),
+            "_rank": WEATHER_SEV.get(sev.lower(), 1),
             "title": str(t.get("title", "")).strip(),
             "hint": str(t.get("hint", "")).strip(),
+            "timing": t.get("timing", "Today"),
             "sources": [],
             "crop_name": None,
             "is_general": None,
@@ -254,6 +257,7 @@ def _public(item: Dict[str, Any]) -> Dict[str, Any]:
     out.pop("_rank", None)
     out.pop("_priority", None)
     out.pop("_seq", None)
+    out.pop("weather_key", None)
     return out
 
 
@@ -265,12 +269,11 @@ def select_what_to_do(
 ) -> List[Dict[str, Any]]:
     """Deterministically select recommendations (up to max_items, default 4).
 
-    Structure:
-      1. Best Pest & Disease action (highest band, then per-action priority).
-      2. Best Irrigation / Soil Moisture recommendation.
-      3. Top weather to-dos from todo_card.py (up to 2 items).
-      4. If still under max_items (e.g. no pest or irrigation data), fill with
-         remaining weather or pest items.
+    Order & Category Rules:
+      1. Top 2 items: Weather-driven (Rainfall, Temperature, or Wind).
+      2. 3rd item: Best Pest & Disease action (at most 1 pest item).
+      3. 4th item: Best Irrigation recommendation (at most 1 irrigation item).
+      4. Strict No-Repeat: No category or weather sub-factor is ever repeated.
     """
     pest_items = sorted(
         _pest_items(pest_card),
@@ -286,37 +289,46 @@ def select_what_to_do(
     )
 
     chosen: List[Dict[str, Any]] = []
+    used_categories = set()
+
+    def get_category_key(item: Dict[str, Any]) -> str:
+        cat = item.get("category", "")
+        if cat == WEATHER_CATEGORY:
+            w_key = item.get("weather_key") or ""
+            return f"weather_{w_key}" if w_key else "weather"
+        return cat
 
     def add(item: Optional[Dict[str, Any]]) -> bool:
         if item is None or len(chosen) >= max_items:
             return False
+        cat_key = get_category_key(item)
+        if cat_key in used_categories:
+            return False
         if _is_dup(item, chosen):
             return False
         chosen.append(item)
+        used_categories.add(cat_key)
         return True
 
-    # 1. Best Pest & Disease action (1 item)
+    # 1 & 2: Top two weather-driven actions (Rain, Temp, Wind)
+    for w in weather_items:
+        if sum(1 for c in chosen if c.get("category") == WEATHER_CATEGORY) >= 2:
+            break
+        add(w)
+
+    # 3: Best Pest & Disease action (1 item only, no repeating pest)
     if pest_items:
         add(pest_items[0])
 
-    # 2. Best Irrigation recommendation (1 item)
+    # 4: Best Irrigation recommendation (1 item only)
     if irr_items:
         add(irr_items[0])
 
-    # 3. Top weather to-dos (up to 2 items)
-    for it in weather_items[:2]:
-        add(it)
-
-    # 4. Fill any remaining slots up to max_items
-    for it in weather_items[2:]:
+    # 5: Backfill remaining slots with any unused distinct weather factors (e.g. 3rd weather key)
+    for w in weather_items:
         if len(chosen) >= max_items:
             break
-        add(it)
-
-    for it in pest_items[1:]:
-        if len(chosen) >= max_items:
-            break
-        add(it)
+        add(w)
 
     result = [_public(item) for item in chosen]
     logger.info(

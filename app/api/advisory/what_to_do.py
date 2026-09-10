@@ -64,10 +64,10 @@ async def generate_what_to_do(request: AIAdvisoryRequest):
         )
 
         # ------------------------------------------------------------------
-        # Step 3: Weather to-dos from todo_card.py (LLM-phrased top 2 items)
+        # Step 3: Weather to-dos from todo_card.py (LLM-phrased candidates)
         # ------------------------------------------------------------------
         from todo_card import get_top_weather_todos
-        weather_todos = await get_top_weather_todos(request, language="English", top_n=2)
+        weather_todos = await get_top_weather_todos(request, language="English", top_n=3)
 
         # ------------------------------------------------------------------
         # Step 4: Pest & Disease card (shared cache — runs independently of the
