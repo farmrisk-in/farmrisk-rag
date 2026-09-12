@@ -298,11 +298,11 @@ def select_what_to_do(
             return f"weather_{w_key}" if w_key else "weather"
         return cat
 
-    def add(item: Optional[Dict[str, Any]]) -> bool:
+    def add(item: Optional[Dict[str, Any]], enforce_unique_cat: bool = True) -> bool:
         if item is None or len(chosen) >= max_items:
             return False
         cat_key = get_category_key(item)
-        if cat_key in used_categories:
+        if enforce_unique_cat and cat_key in used_categories:
             return False
         if _is_dup(item, chosen):
             return False
@@ -314,21 +314,27 @@ def select_what_to_do(
     for w in weather_items:
         if sum(1 for c in chosen if c.get("category") == WEATHER_CATEGORY) >= 2:
             break
-        add(w)
+        add(w, enforce_unique_cat=True)
 
-    # 3: Best Pest & Disease action (1 item only, no repeating pest)
+    # 3: Best Pest & Disease action (1 item in primary pass)
     if pest_items:
-        add(pest_items[0])
+        add(pest_items[0], enforce_unique_cat=True)
 
-    # 4: Best Irrigation recommendation (1 item only)
+    # 4: Best Irrigation recommendation (1 item in primary pass)
     if irr_items:
-        add(irr_items[0])
+        add(irr_items[0], enforce_unique_cat=True)
 
-    # 5: Backfill remaining slots with any unused distinct weather factors (e.g. 3rd weather key)
+    # 5: Backfill remaining slots with remaining distinct weather factors first
     for w in weather_items:
         if len(chosen) >= max_items:
             break
-        add(w)
+        add(w, enforce_unique_cat=True)
+
+    # 6: If still under max_items (e.g. calm weather / no irrigation needed), backfill with remaining crop/pest actions
+    for p in pest_items:
+        if len(chosen) >= max_items:
+            break
+        add(p, enforce_unique_cat=False)
 
     result = [_public(item) for item in chosen]
     logger.info(
