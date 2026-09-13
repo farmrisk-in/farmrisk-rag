@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmRisk AI Advisory Backend</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>🌾</text></svg>">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-light: rgba(16, 185, 129, 0.15);
+      --accent: #38bdf8;
+      --badge-post: #3b82f6;
+      --badge-get: #10b981;
+      --badge-bg: rgba(59, 130, 246, 0.15);
+      --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f8fafc;
+        --card-bg: #ffffff;
+        --card-border: #e2e8f0;
+        --text: #0f172a;
+        --text-muted: #64748b;
+        --primary: #059669;
+        --primary-hover: #047857;
+        --primary-light: rgba(5, 150, 105, 0.1);
+        --accent: #0284c7;
+        --badge-post: #2563eb;
+        --badge-get: #059669;
+        --badge-bg: rgba(37, 99, 235, 0.1);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .brand h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+
+    /* Action Grid / Quick Links */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .action-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .action-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .action-card-header {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .action-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Section Card */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* System Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-item {
+      padding: 0.875rem;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 0.5rem;
+      border: 1px solid var(--card-border);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+    }
+
+    /* Endpoints List */
+    .endpoint-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .endpoint-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .endpoint-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .endpoint-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .method {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .method.post {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--badge-post);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .method.get {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--badge-get);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .endpoint-path {
+      font-family: monospace;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .endpoint-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Code Block */
+    pre {
+      background: #090d16;
+      color: #38bdf8;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      border: 1px solid var(--card-border);
+      font-family: monospace;
+      line-height: 1.45;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--card-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <h1>🌾 FarmRisk AI Backend</h1>
+        <div id="statusBadge" class="badge-status">
+          <div class="pulse"></div>
+          <span id="statusText">Checking status...</span>
+        </div>
+      </div>
+      <p class="subtitle">Agrometeorological Risk Engine & RAG Advisory Service for Indian Agriculture</p>
+    </header>
+
+    <!-- Quick Links Grid -->
+    <div class="action-grid">
+      <a href="/docs" class="action-card" target="_blank">
+        <div class="action-card-header">📘 Swagger UI</div>
+        <p>Interactive API testing sandbox and schema documentation.</p>
+      </a>
+      <a href="/redoc" class="action-card" target="_blank">
+        <div class="action-card-header">📕 ReDoc</div>
+        <p>Clean, structured API reference documentation.</p>
+      </a>
+      <a href="/openapi.json" class="action-card" target="_blank">
+        <div class="action-card-header">📋 OpenAPI JSON</div>
+        <p>Raw OpenAPI 3.1 specification schema definition.</p>
+      </a>
+      <a href="/health" class="action-card" target="_blank">
+        <div class="action-card-header">💓 Health Probe</div>
+        <p>Direct JSON uptime and environment health check.</p>
+      </a>
+    </div>
+
+    <!-- Backend Spec Info -->
+    <div class="section-card">
+      <div class="section-title">⚙️ Backend Configuration</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Primary LLM</div>
+          <div class="stat-value">Gemini (3.1 Flash-Lite)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Fallback LLM</div>
+          <div class="stat-value">Groq (Llama-3.3-70B)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Embeddings</div>
+          <div class="stat-value">multilingual-e5-small</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Vector Store</div>
+          <div class="stat-value">Supabase pgvector</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Indexed Manuals</div>
+          <div class="stat-value">ICAR, TNAU, PAU, JAU</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Supported Languages</div>
+          <div class="stat-value">EN, HI, GU, PA, TA, TE, MR</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Endpoints Directory -->
+    <div class="section-card">
+      <div class="section-title">🔌 Available API Endpoints</div>
+      <div class="endpoint-list">
+        
+        <div class="endpoint-item">
+          <div class="endpoint-left">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/advisory/pre-sowing</span>
+          </div>
+          <div class="endpoint-desc">Generates 7 Markdown sections for pre-sowing crop calendar in native target language</div>
+        </div>
+
+        <div class="endpoint-item">
+          <div class="endpoint-left">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/advisory/what-to-do</span>
+          </div>
+          <div class="endpoint-desc">Top 4 daily action recommendations (Weather alerts, Pest management, Irrigation)</div>
+        </div>
+
+        <div class="endpoint-item">
+          <div class="endpoint-left">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/advisory/pest-card</span>
+          </div>
+          <div class="endpoint-desc">Crop-specific Pest & Disease risk index card with RAG grounding</div>
+        </div>
+
+        <div class="endpoint-item">
+          <div class="endpoint-left">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/advisory/overview</span>
+          </div>
+          <div class="endpoint-desc">3-bullet executive weather & crop risk summary</div>
+        </div>
+
+        <div class="endpoint-item">
+          <div class="endpoint-left">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/advisory/weather-summary</span>
+          </div>
+          <div class="endpoint-desc">5-day agro-meteorological forecast interpretation</div>
+        </div>
+
+        <div class="endpoint-item">
+          <div class="endpoint-left">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/advisory</span>
+          </div>
+          <div class="endpoint-desc">Full comprehensive multi-component advisory payload</div>
+        </div>
+
+        <div class="endpoint-item">
+          <div class="endpoint-left">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/location/search</span>
+          </div>
+          <div class="endpoint-desc">Search Indian villages, sub-districts, and districts</div>
+        </div>
+
+        <div class="endpoint-item">
+          <div class="endpoint-left">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/health</span>
+          </div>
+          <div class="endpoint-desc">System uptime and status probe</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Quick cURL example -->
+    <div class="section-card">
+      <div class="section-title">💻 Example cURL: Pre-Sowing Advisory</div>
+      <pre><code>curl -X POST "http://127.0.0.1:8000/api/advisory/pre-sowing" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "crop": "Cotton",
+    "state": "Gujarat",
+    "soil_type": "black cotton soil",
+    "season": "Kharif",
+    "irrigation_type": "flood",
+    "language": "en"
+  }'</code></pre>
+    </div>
+
+    <footer>
+      FarmRisk AI Advisory System &copy; 2026. Built with FastAPI, LangChain, pgvector, and Gemini.
+    </footer>
+
+  </div>
+
+  <script>
+    // Live health check
+    async function checkHealth() {
+      const statusText = document.getElementById('statusText');
+      const badge = document.getElementById('statusBadge');
+      const t0 = performance.now();
+      try {
+        const res = await fetch('/health');
+        const data = await res.json();
+        const latency = Math.round(performance.now() - t0);
+        if (res.ok && data.status === 'healthy') {
+          statusText.textContent = `Operational (${latency}ms)`;
+          badge.style.color = 'var(--primary)';
+          badge.style.background = 'var(--primary-light)';
+        } else {
+          statusText.textContent = 'Degraded';
+          badge.style.color = '#eab308';
+        }
+      } catch (err) {
+        statusText.textContent = 'Unreachable';
+        badge.style.color = '#ef4444';
+        badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      }
+    }
+    checkHealth();
+    setInterval(checkHealth, 30000);
+  </script>
+</body>
+</html>
