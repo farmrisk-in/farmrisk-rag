@@ -37,7 +37,7 @@ OUTPUT CONTRACT — follow these rules exactly:
 3. Each value is a Markdown string. Use GitHub Flavored Markdown:
    - **bold** for key terms, rates, product names
    - *italic* for timing, growth stages, caveats
-   - | Table | with | pipes | for structured data (always include header separator row)
+   - GFM tables with pipes. CRITICAL: every table row MUST be on its own line. The header row, the separator row (| :--- | :--- |), and every data row must each be a separate line separated by \n. Never put multiple rows on the same line.
    - > **Warning:** for critical hard rules (renders as red callout in UI)
    - > **Tip:** for useful tips (renders as green callout in UI)
    - Bullet lists with - for enumerations
