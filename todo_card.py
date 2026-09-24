@@ -622,9 +622,10 @@ async def get_top_weather_todos(
 
     result = []
     for item in phrased:
+        cat = item.get("key") or "weather"
         result.append({
-            "category": "weather",
-            "key": item.get("key"),
+            "category": cat,
+            "key": cat,
             "severity": item.get("severity", "cautionary"),
             "title": item.get("title", ""),
             "hint": item.get("hint", ""),

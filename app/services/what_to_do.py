@@ -217,10 +217,10 @@ def _weather_items(todos: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     items = []
     for t in todos:
         sev = str(t.get("severity", "favorable"))
-        w_key = t.get("key") or t.get("weather_key") or ""
+        raw_key = str(t.get("key") or t.get("category") or "").lower().strip()
+        cat = raw_key if raw_key in ("rain", "temp", "wind") else "weather"
         items.append({
-            "category": WEATHER_CATEGORY,
-            "weather_key": w_key,
+            "category": cat,
             "severity": sev,
             "_rank": WEATHER_SEV.get(sev.lower(), 1),
             "title": str(t.get("title", "")).strip(),
@@ -252,6 +252,18 @@ def _is_dup(item: Dict[str, Any], chosen: List[Dict[str, Any]]) -> bool:
     return False
 
 
+def _has_cross_system_overlap(item: Dict[str, Any], chosen: List[Dict[str, Any]]) -> bool:
+    """Check if item recommends the same physical action as an already chosen item across systems (e.g. duplicate drainage advice)."""
+    text_b = (str(item.get("title", "")) + " " + str(item.get("hint", ""))).lower()
+    keywords = ["drainage", "waterlog", "waterlogging", "irrigate", "irrigation", "spray drift"]
+    for c in chosen:
+        text_a = (str(c.get("title", "")) + " " + str(c.get("hint", ""))).lower()
+        for kw in keywords:
+            if kw in text_a and kw in text_b:
+                return True
+    return False
+
+
 def _public(item: Dict[str, Any]) -> Dict[str, Any]:
     out = dict(item)
     out.pop("_rank", None)
@@ -270,10 +282,13 @@ def select_what_to_do(
     """Deterministically select recommendations (up to max_items, default 4).
 
     Order & Category Rules:
-      1. Top 2 items: Weather-driven (Rainfall, Temperature, or Wind).
-      2. 3rd item: Best Pest & Disease action (at most 1 pest item).
-      3. 4th item: Best Irrigation recommendation (at most 1 irrigation item).
-      4. Strict No-Repeat: No category or weather sub-factor is ever repeated.
+      1. Ungrouped weather actions: 'rain', 'temp', 'wind' (top 2).
+      2. Pest & Disease action: at most ONE item ('pest').
+      3. Irrigation action: at most ONE item ('irrigation').
+      4. Strict No-Repeat: Every single recommendation has a guaranteed unique category.
+         If weather is calm and irrigation is not needed, pest items are NOT repeated.
+      5. Cross-system deduplication: ensures advice like 'drainage' is not duplicated
+         between rain and pest.
     """
     pest_items = sorted(
         _pest_items(pest_card),
@@ -291,50 +306,47 @@ def select_what_to_do(
     chosen: List[Dict[str, Any]] = []
     used_categories = set()
 
-    def get_category_key(item: Dict[str, Any]) -> str:
-        cat = item.get("category", "")
-        if cat == WEATHER_CATEGORY:
-            w_key = item.get("weather_key") or ""
-            return f"weather_{w_key}" if w_key else "weather"
-        return cat
-
-    def add(item: Optional[Dict[str, Any]], enforce_unique_cat: bool = True) -> bool:
+    def add(item: Optional[Dict[str, Any]]) -> bool:
         if item is None or len(chosen) >= max_items:
             return False
-        cat_key = get_category_key(item)
-        if enforce_unique_cat and cat_key in used_categories:
+        cat = item.get("category", "")
+        if cat in used_categories:
             return False
         if _is_dup(item, chosen):
             return False
+        if _has_cross_system_overlap(item, chosen):
+            return False
         chosen.append(item)
-        used_categories.add(cat_key)
+        used_categories.add(cat)
         return True
 
-    # 1 & 2: Top two weather-driven actions (Rain, Temp, Wind)
+    # 1. Top weather-driven actions (up to 2 distinct weather categories: 'rain', 'temp', 'wind')
+    weather_count = 0
     for w in weather_items:
-        if sum(1 for c in chosen if c.get("category") == WEATHER_CATEGORY) >= 2:
+        if weather_count >= 2:
             break
-        add(w, enforce_unique_cat=True)
+        if add(w):
+            weather_count += 1
 
-    # 3: Best Pest & Disease action (1 item in primary pass)
-    if pest_items:
-        add(pest_items[0], enforce_unique_cat=True)
-
-    # 4: Best Irrigation recommendation (1 item in primary pass)
-    if irr_items:
-        add(irr_items[0], enforce_unique_cat=True)
-
-    # 5: Backfill remaining slots with remaining distinct weather factors first
-    for w in weather_items:
-        if len(chosen) >= max_items:
-            break
-        add(w, enforce_unique_cat=True)
-
-    # 6: If still under max_items (e.g. calm weather / no irrigation needed), backfill with remaining crop/pest actions
+    # 2. Exactly one Pest & Disease action (category: 'pest')
+    # If the top pest action overlaps with rain (e.g. both say drainage),
+    # it automatically falls through to the next best pest action (e.g. sucking pests scouting)
     for p in pest_items:
+        if "pest" in used_categories:
+            break
+        add(p)
+
+    # 3. Exactly one Irrigation recommendation (category: 'irrigation')
+    for irr in irr_items:
+        if "irrigation" in used_categories:
+            break
+        add(irr)
+
+    # 4. If weather slots had room and another distinct weather factor is active (e.g. 'wind')
+    for w in weather_items:
         if len(chosen) >= max_items:
             break
-        add(p, enforce_unique_cat=False)
+        add(w)
 
     result = [_public(item) for item in chosen]
     logger.info(
