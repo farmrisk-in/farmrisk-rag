@@ -41,6 +41,7 @@ OUTPUT CONTRACT — follow these rules exactly:
    - > **Warning:** for critical hard rules (renders as red callout in UI)
    - > **Tip:** for useful tips (renders as green callout in UI)
    - Bullet lists with - for enumerations
+   - Always leave a blank line (\n\n) immediately before and after any Markdown tables or blockquotes. Do not attach text or blockquotes directly to the top or bottom of a table without a blank line separating them.
 4. STRICT LENGTH LIMITS per section (count carefully):
    - sowing_window:     80–120 words  (1 table with 3 cols, 1 warning blockquote)
    - seed_selection:    150–200 words (1 intro line, 1 filter table, bullet list, 1 blockquote)
