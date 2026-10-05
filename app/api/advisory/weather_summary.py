@@ -5,14 +5,15 @@ Generates a crisp 1-2 sentence actionable operational weather summary for the ne
 """
 
 import time
-from fastapi import APIRouter, HTTPException
-from typing import Dict, Any
+from typing import Any, Dict
 
-from app.models.schemas import AIAdvisoryRequest, AdvisoryResponse
-from app.llm.providers import get_primary_provider, get_fallback_provider
-from app.core.caching import cache_manager, translation_cache, lock_manager
-from app.core.logging import logger
+from fastapi import APIRouter, HTTPException
+
 from app.api.advisory.dependencies import context_builder, translation_service
+from app.core.caching import cache_manager, lock_manager, translation_cache
+from app.core.logging import logger
+from app.llm.providers import get_fallback_provider, get_primary_provider
+from app.models.schemas import AdvisoryResponse, AIAdvisoryRequest
 
 router = APIRouter(prefix="/api/advisory", tags=["Advisory"])
 
@@ -39,7 +40,9 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
         # Extract hourly data for the next 24 hours
         h = request.weatherData.hourly
         temps_24h = h.temperature_2m[:24] if h.temperature_2m else []
-        precip_prob_24h = h.precipitation_probability[:24] if h.precipitation_probability else []
+        precip_prob_24h = (
+            h.precipitation_probability[:24] if h.precipitation_probability else []
+        )
         wind_speeds_24h = h.wind_speed_10m[:24] if h.wind_speed_10m else []
 
         max_temp_24h = max(temps_24h) if temps_24h else cw.temperature_c
@@ -49,6 +52,18 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
 
         d = request.weatherData.daily
         precip_today = d.precipitation_sum[0] if d.precipitation_sum else 0.0
+
+        precip_hourly = (
+            h.precipitation[:24] if getattr(h, "precipitation", None) else []
+        )
+        max_precip_hourly = max(precip_hourly) if precip_hourly else 0.0
+
+        no_rain_override = ""
+        if max_precip_prob < 5.0 and max_precip_hourly < 0.1 and precip_today < 0.1:
+            no_rain_override = (
+                "\nCRITICAL INSTRUCTION: There are NO chances of rain in the next 24 hours. "
+                "You MUST NOT mention expected rain or showers.\n"
+            )
 
         # Construct a timeline of how weather changes over the next 24 hours
         # Pick 5 representative intervals (current hour, +6h, +12h, +18h, +23h)
@@ -60,10 +75,24 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                     time_display = t_str.split("T")[-1][:5]
                 except Exception:
                     time_display = f"+{offset}h"
-                temp = h.temperature_2m[offset] if offset < len(h.temperature_2m) else cw.temperature_c
-                prob = h.precipitation_probability[offset] if offset < len(h.precipitation_probability) else 0.0
-                wind = h.wind_speed_10m[offset] if offset < len(h.wind_speed_10m) else cw.wind_speed_kmh
-                timeline.append(f"At {time_display}: Temp {temp:.1f}°C, Rain Prob {prob:.0f}%, Wind Speed {wind:.1f} km/h")
+                temp = (
+                    h.temperature_2m[offset]
+                    if offset < len(h.temperature_2m)
+                    else cw.temperature_c
+                )
+                prob = (
+                    h.precipitation_probability[offset]
+                    if offset < len(h.precipitation_probability)
+                    else 0.0
+                )
+                wind = (
+                    h.wind_speed_10m[offset]
+                    if offset < len(h.wind_speed_10m)
+                    else cw.wind_speed_kmh
+                )
+                timeline.append(
+                    f"At {time_display}: Temp {temp:.1f}°C, Rain Prob {prob:.0f}%, Wind Speed {wind:.1f} km/h"
+                )
         timeline_str = "\n".join(timeline)
 
         # Construct prompt for the 1-2 sentence weather summary
@@ -137,6 +166,7 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                     f"- Only mention UV index when skies are clear/mostly clear during daylight (UV is irrelevant under heavy cloud or at night).\n"
                     f"- If a sharp transition occurs (e.g. clear → thunderstorm), lead with the transition and its onset time.\n"
                     f"- Never warn about heat and heavy rain in the same breath as if both peak together; choose the one the data supports.\n"
+                    f"{no_rain_override}"
                 )
 
                 primary = get_primary_provider()
@@ -149,16 +179,27 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                     logger.warning(f"Primary provider failed for weather summary: {e}")
                     if fallback:
                         try:
-                            raw = await fallback.generate_text(prompt=prompt, temperature=0.2)
+                            raw = await fallback.generate_text(
+                                prompt=prompt, temperature=0.2
+                            )
                         except Exception as fe:
-                            logger.error(f"Fallback provider failed for weather summary: {fe}")
+                            logger.error(
+                                f"Fallback provider failed for weather summary: {fe}"
+                            )
 
                 if raw is None:
-                    raise HTTPException(status_code=502, detail="Failed to generate weather summary from LLM providers.")
+                    raise HTTPException(
+                        status_code=502,
+                        detail="Failed to generate weather summary from LLM providers.",
+                    )
 
                 weather_summary_text = raw.strip()
                 # Cache English version
-                cache_manager.set(summary_key, {"advisory_summary": weather_summary_text}, ttl_seconds=43200)
+                cache_manager.set(
+                    summary_key,
+                    {"advisory_summary": weather_summary_text},
+                    ttl_seconds=43200,
+                )
                 logger.info("Weather Summary Cache stored")
 
         # Wrap in AdvisoryResponse for translation pipeline compat
@@ -169,7 +210,9 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
         if is_english:
             translated = advisory_obj.model_dump()
         else:
-            trans_key = translation_cache.get_key(advisory_obj.model_dump(), request.language)
+            trans_key = translation_cache.get_key(
+                advisory_obj.model_dump(), request.language
+            )
             trans_lock = await lock_manager.get_lock(trans_key)
             if trans_lock.locked():
                 logger.info("Waiting for existing translation generation")
@@ -180,7 +223,9 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                     logger.info("Weather Summary Translation Cache HIT")
                 else:
                     logger.info("Weather Summary Translation Cache MISS")
-                    result = await translation_service.translate_advisory(advisory_obj, request.language)
+                    result = await translation_service.translate_advisory(
+                        advisory_obj, request.language
+                    )
                     translated = result.data
                     if result.translated:
                         translation_cache.set(trans_key, translated)

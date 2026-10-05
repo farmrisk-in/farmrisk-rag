@@ -71,6 +71,7 @@ class HourlyWeatherInput(BaseModel):
     time: List[str]
     temperature_2m: List[float]
     precipitation_probability: List[float]
+    precipitation: Optional[List[float]] = None
     wind_speed_10m: List[float]
     weather_code: List[int]
     icon: List[str]
