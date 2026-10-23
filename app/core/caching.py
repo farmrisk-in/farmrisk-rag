@@ -164,7 +164,7 @@ class AdvisoryCache:
             location_identifier = f"{lat_grid}_{lon_grid}"
         
         crop_clean = crop.lower().strip()
-        return f"advisory_v3:{location_identifier}:{crop_clean}:{weather_hash}"
+        return f"advisory_v4:{location_identifier}:{crop_clean}:{weather_hash}"
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
         return self.manager.get(key)

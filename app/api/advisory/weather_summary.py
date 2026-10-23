@@ -59,12 +59,14 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
         )
         max_precip_hourly = max(precip_hourly) if precip_hourly else 0.0
 
-        # Check if conditions are essentially rainless / dry
-        # (precipitation probability < 5% or 0%, hourly rain < 0.1mm, and daily sum negligible)
+        # Check if conditions are essentially rainless / dry:
+        # 1. Hourly rain peak is under 0.5mm and 24h total under 1.5mm (negligible trace / dry)
+        # 2. Or probability is low (< 30%) with little to no rain (< 1.0mm)
+        # 3. Or probability is under 10%
         is_no_rain = (
-            (max_precip_prob <= 5.0 and max_precip_hourly <= 0.1 and precip_today <= 0.5)
-            or (max_precip_prob == 0.0 and max_precip_hourly <= 0.1)
-            or (max_precip_prob <= 10.0 and max_precip_hourly == 0.0 and precip_today <= 0.2)
+            (max_precip_hourly < 0.5 and precip_today < 1.5)
+            or (max_precip_prob < 30.0 and max_precip_hourly < 1.0 and precip_today < 2.0)
+            or (max_precip_prob < 10.0)
         )
 
         # Construct a timeline of how weather changes over the next 24 hours
@@ -125,7 +127,7 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
             lon_grid = f"{request.location.lng:.3f}"
             location_identifier = f"{lat_grid}_{lon_grid}"
 
-        summary_key = f"weather_summary_v3:{location_identifier}:{fingerprint}"
+        summary_key = f"weather_summary_v4:{location_identifier}:{fingerprint}"
 
         # Acquire lock and check cache
         summary_lock = await lock_manager.get_lock(summary_key)

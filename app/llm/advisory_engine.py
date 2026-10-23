@@ -347,14 +347,14 @@ class AdvisoryEngine:
 
             # Clean any template slips like "a no rain event of 0.0 mm is expected"
             cleaned_raw = re.sub(
-                r'(?i)\b(?:a\s+)?no\s+rain\s+event(?:\s+of(?:\s+around)?)?\s+\*?0(?:\.0)?\s*mm\*?\s+is\s+expected\b[^\.\n]*[\.\n]?',
+                r'(?i)\b(?:on\s+the\s+wettest\s+day,\s*)?(?:a\s+)?no\s+rain\s+event(?:\s+of(?:\s+around)?)?\s+\*?\d+(?:\.\d+)?\s*mm\*?\s+is\s+expected[^\.\n]*[\.\n]?',
                 'No rainfall is expected. ',
-                raw.strip()
+                raw.strip(),
             )
             cleaned_raw = re.sub(
-                r'(?i)\ba\s+no\s+rain\s+of\s+around\s+\*?0(?:\.0)?\s*mm\*?\s+is\s+expected\b[^\.\n]*[\.\n]?',
+                r'(?i)\b(?:on\s+the\s+wettest\s+day,\s*)?(?:a\s+)?no\s+rain\s+of(?:\s+around)?\s+\*?\d+(?:\.\d+)?\s*mm\*?\s+is\s+expected[^\.\n]*[\.\n]?',
                 'No rainfall is expected. ',
-                cleaned_raw
+                cleaned_raw,
             )
             cleaned_raw = re.sub(r' +', ' ', cleaned_raw).strip()
 
@@ -585,7 +585,7 @@ class AdvisoryEngine:
 
         # Crop instructions
         is_general = crop.crop_id.lower().strip() == "general"
-        is_zero_rain = (total_rainfall < 0.1 or max_daily_rain < 0.1 or rainy_days == 0)
+        is_zero_rain = (total_rainfall < 1.0 or max_daily_rain < 1.0 or rainy_days == 0)
 
         if is_general:
             p_count_instruction = "Generate exactly ONE paragraph of plain text."
@@ -594,8 +594,8 @@ class AdvisoryEngine:
             )
             if is_zero_rain:
                 rain_inst = (
-                    "- Rainfall: State clearly that dry weather with no rainfall (*0.0 mm*) is expected over the forecast period. "
-                    "Do NOT describe any wettest day or upcoming rain event, and NEVER use phrases like 'a no rain event of 0.0 mm'. "
+                    f"- Rainfall: State clearly that dry weather with no rainfall (*{total_rainfall:.1f} mm* over the forecast period) is expected. "
+                    "Do NOT describe any wettest day or upcoming rain event, and NEVER use phrases like 'a no rain event'. "
                     "Recommend regular irrigation or moisture conservation as appropriate.\n"
                 )
             else:
@@ -667,8 +667,8 @@ class AdvisoryEngine:
             )
             if is_zero_rain:
                 rain_inst_p1 = (
-                    "- State clearly that dry weather with no rainfall (*0.0 mm* across all days) is expected. "
-                    "Do NOT describe any wettest day or upcoming rain event, and NEVER use phrases like 'a no rain event of 0.0 mm'.\n"
+                    f"- State clearly that dry weather with no rainfall (*{total_rainfall:.1f} mm* across all days) is expected. "
+                    "Do NOT describe any wettest day or upcoming rain event, and NEVER use phrases like 'a no rain event'.\n"
                 )
             else:
                 rain_inst_p1 = (
@@ -889,7 +889,7 @@ HALLUCINATION RULES:
                 errors.append(f"Paragraph 1 must start with '{expected_prefix}'.")
 
         # ---- Peak Rainfall Date/Day Check ----
-        # Only require date/day of maximum rainfall if actual rainfall is expected (>= 0.1 mm)
+        # Only require date/day of maximum rainfall if actual rainfall is expected (>= 1.0 mm)
         total_rain_val = (
             context.forecast_summary.total_rainfall_mm
             if context.forecast_summary
@@ -905,7 +905,7 @@ HALLUCINATION RULES:
             if context.forecast_summary
             else None
         )
-        if max_daily_rain_date and max_daily_rain_val >= 0.1 and total_rain_val >= 0.1:
+        if max_daily_rain_date and max_daily_rain_val >= 1.0 and total_rain_val >= 1.0:
             peak_date_formatted = self._fmt_date(max_daily_rain_date)
             has_date = peak_date_formatted in text
             has_relative = False
