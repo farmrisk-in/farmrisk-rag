@@ -345,16 +345,29 @@ class AdvisoryEngine:
                 )
                 continue
 
-            errors = self._validate(raw, context)
+            # Clean any template slips like "a no rain event of 0.0 mm is expected"
+            cleaned_raw = re.sub(
+                r'(?i)\b(?:a\s+)?no\s+rain\s+event(?:\s+of(?:\s+around)?)?\s+\*?0(?:\.0)?\s*mm\*?\s+is\s+expected\b[^\.\n]*[\.\n]?',
+                'No rainfall is expected. ',
+                raw.strip()
+            )
+            cleaned_raw = re.sub(
+                r'(?i)\ba\s+no\s+rain\s+of\s+around\s+\*?0(?:\.0)?\s*mm\*?\s+is\s+expected\b[^\.\n]*[\.\n]?',
+                'No rainfall is expected. ',
+                cleaned_raw
+            )
+            cleaned_raw = re.sub(r' +', ' ', cleaned_raw).strip()
+
+            errors = self._validate(cleaned_raw, context)
             if not errors:
                 logger.info(f"Advisory validated on attempt {attempt}.")
-                return AdvisoryResponse(advisory_summary=raw.strip())
+                return AdvisoryResponse(advisory_summary=cleaned_raw)
 
             logger.warning(f"Advisory attempt {attempt} failed validation: {errors}")
 
             prompt = self._build_correction_prompt(
                 base_prompt=base_prompt,
-                previous=raw,
+                previous=cleaned_raw,
                 errors=errors,
             )
 
@@ -572,11 +585,35 @@ class AdvisoryEngine:
 
         # Crop instructions
         is_general = crop.crop_id.lower().strip() == "general"
+        is_zero_rain = (total_rainfall < 0.1 or max_daily_rain < 0.1 or rainy_days == 0)
+
         if is_general:
             p_count_instruction = "Generate exactly ONE paragraph of plain text."
             word_count_instruction = (
                 "Total word count MUST be between 70 and 100 words."
             )
+            if is_zero_rain:
+                rain_inst = (
+                    "- Rainfall: State clearly that dry weather with no rainfall (*0.0 mm*) is expected over the forecast period. "
+                    "Do NOT describe any wettest day or upcoming rain event, and NEVER use phrases like 'a no rain event of 0.0 mm'. "
+                    "Recommend regular irrigation or moisture conservation as appropriate.\n"
+                )
+            else:
+                rain_inst = (
+                    "- Rainfall: state the total rainfall over the whole period as a plain sum "
+                    f"(*{total_rainfall:.1f} mm* over *{rainy_days}* rainy days). Then describe the WETTEST SINGLE DAY "
+                    "as an upcoming EVENT, not a statistic, and you MUST say WHICH DAY it is. "
+                    + (
+                        f'The wettest day is {peak_timing_phrase} — phrase it like "a {rain_word} rain of around '
+                        f'*{max_daily_rain:.1f} mm* is expected {peak_timing_phrase}", using the daily rainfall '
+                        "category table below for the wet-word. "
+                        if peak_timing_phrase
+                        else 'If no date for the wettest day is available, say "on the wettest day" and do NOT invent a date. '
+                    )
+                    + 'Do NOT write it as "your peak rainfall will be X".\n'
+                    "- Pair the rain with the matching action (drainage for heavy days, water conservation for light rain).\n"
+                )
+
             structure_instruction = (
                 "AUDIENCE: An ordinary reader in a village — could be a farmer, a family member, or a "
                 "field worker. Write the way a helpful local agriculture extension officer (KVK) would explain "
@@ -590,18 +627,7 @@ class AdvisoryEngine:
                 f'"around {end_fmt}") instead of listing full calendar dates for events.\n'
                 "\n"
                 "USE THE INPUT VALUES, BUT PAIR EACH WITH AN ACTION:\n"
-                "- Rainfall: state the total rainfall over the whole period as a plain sum "
-                f"(*{total_rainfall:.1f} mm* over *{rainy_days}* rainy days). Then describe the WETTEST SINGLE DAY "
-                "as an upcoming EVENT, not a statistic, and you MUST say WHICH DAY it is. "
-                + (
-                    f'The wettest day is {peak_timing_phrase} — phrase it like "a {rain_word} rain of around '
-                    f'*{max_daily_rain:.1f} mm* is expected {peak_timing_phrase}", using the daily rainfall '
-                    "category table below for the wet-word. "
-                    if peak_timing_phrase
-                    else 'If no date for the wettest day is available, say "on the wettest day" and do NOT invent a date. '
-                )
-                + 'Do NOT write it as "your peak rainfall will be X".\n'
-                "- Pair the rain with the matching action (drainage for heavy days, water conservation for light rain).\n"
+                f"{rain_inst}"
                 "- Mention the temperature/heat and gusty-wind situation plainly, and if winds are strong warn that "
                 "spraying will drift and be wasted — so postpone spray/fertilizer.\n"
                 "- Give 1-2 concrete field actions tied to WHEN to act or WHAT sign to watch.\n"
@@ -639,6 +665,25 @@ class AdvisoryEngine:
             word_count_instruction = (
                 "Total word count MUST be between 90 and 140 words."
             )
+            if is_zero_rain:
+                rain_inst_p1 = (
+                    "- State clearly that dry weather with no rainfall (*0.0 mm* across all days) is expected. "
+                    "Do NOT describe any wettest day or upcoming rain event, and NEVER use phrases like 'a no rain event of 0.0 mm'.\n"
+                )
+            else:
+                rain_inst_p1 = (
+                    f"- State total rainfall as a plain sum (*{total_rainfall:.1f} mm* over *{rainy_days}* rainy days).\n"
+                    "- Describe the WETTEST SINGLE DAY as an event and you MUST say WHICH DAY it is. "
+                    + (
+                        f'The wettest day is {peak_timing_phrase} — phrase it like "a {rain_word} rain of around '
+                        f'*{max_daily_rain:.1f} mm* is expected {peak_timing_phrase}", using the DAILY rainfall '
+                        "category table below for the wet-word. "
+                        if peak_timing_phrase
+                        else 'If no date for the wettest day is available, say "on the wettest day" and do NOT invent one. '
+                    )
+                    + "\n"
+                )
+
             structure_instruction = (
                 "REGISTER: Write as an expert agrometeorologist — professional, precise, and detailed. "
                 'But address the reader neutrally: do NOT use "farmers in" or address any specific group; '
@@ -648,16 +693,7 @@ class AdvisoryEngine:
                 f"PARAGRAPH 1 — Weather & Climate Analysis (45–65 words):\n"
                 f'- MUST begin exactly with: "Over the next {forecast_days} days, "\n'
                 '- Name the location (village, district, state) as a place, not as "farmers in".\n'
-                "- State total rainfall as a plain sum (*{total_rainfall:.1f} mm* over *{rainy_days}* rainy days).\n"
-                "- Describe the WETTEST SINGLE DAY as an event and you MUST say WHICH DAY it is. "
-                + (
-                    f'The wettest day is {peak_timing_phrase} — phrase it like "a {rain_word} rain of around '
-                    f'*{max_daily_rain:.1f} mm* is expected {peak_timing_phrase}", using the DAILY rainfall '
-                    "category table below for the wet-word. "
-                    if peak_timing_phrase
-                    else 'If no date for the wettest day is available, say "on the wettest day" and do NOT invent one. '
-                )
-                + "\n"
+                f"{rain_inst_p1}"
                 "- Cover temperature range and heat-stress implications, and current observed conditions "
                 "(humidity, wind speed, gusts, cloud cover) in plain professional terms.\n"
                 + (
@@ -853,12 +889,23 @@ HALLUCINATION RULES:
                 errors.append(f"Paragraph 1 must start with '{expected_prefix}'.")
 
         # ---- Peak Rainfall Date/Day Check ----
+        # Only require date/day of maximum rainfall if actual rainfall is expected (>= 0.1 mm)
+        total_rain_val = (
+            context.forecast_summary.total_rainfall_mm
+            if context.forecast_summary
+            else context.weather_api_summary.api_total_rainfall_mm
+        )
+        max_daily_rain_val = (
+            context.forecast_summary.maximum_daily_rainfall_mm
+            if context.forecast_summary
+            else total_rain_val
+        )
         max_daily_rain_date = (
             context.forecast_summary.maximum_daily_rainfall_date
             if context.forecast_summary
             else None
         )
-        if max_daily_rain_date:
+        if max_daily_rain_date and max_daily_rain_val >= 0.1 and total_rain_val >= 0.1:
             peak_date_formatted = self._fmt_date(max_daily_rain_date)
             has_date = peak_date_formatted in text
             has_relative = False

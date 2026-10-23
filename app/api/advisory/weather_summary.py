@@ -4,6 +4,7 @@ POST /api/advisory/weather-summary
 Generates a crisp 1-2 sentence actionable operational weather summary for the next 24 hours.
 """
 
+import re
 import time
 from typing import Any, Dict
 
@@ -58,12 +59,13 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
         )
         max_precip_hourly = max(precip_hourly) if precip_hourly else 0.0
 
-        no_rain_override = ""
-        if max_precip_prob < 5.0 and max_precip_hourly < 0.1 and precip_today < 0.1:
-            no_rain_override = (
-                "\nCRITICAL INSTRUCTION: There are NO chances of rain in the next 24 hours. "
-                "You MUST NOT mention expected rain or showers.\n"
-            )
+        # Check if conditions are essentially rainless / dry
+        # (precipitation probability < 5% or 0%, hourly rain < 0.1mm, and daily sum negligible)
+        is_no_rain = (
+            (max_precip_prob <= 5.0 and max_precip_hourly <= 0.1 and precip_today <= 0.5)
+            or (max_precip_prob == 0.0 and max_precip_hourly <= 0.1)
+            or (max_precip_prob <= 10.0 and max_precip_hourly == 0.0 and precip_today <= 0.2)
+        )
 
         # Construct a timeline of how weather changes over the next 24 hours
         # Pick 5 representative intervals (current hour, +6h, +12h, +18h, +23h)
@@ -81,9 +83,13 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                     else cw.temperature_c
                 )
                 prob = (
-                    h.precipitation_probability[offset]
-                    if offset < len(h.precipitation_probability)
-                    else 0.0
+                    0.0
+                    if is_no_rain
+                    else (
+                        h.precipitation_probability[offset]
+                        if offset < len(h.precipitation_probability)
+                        else 0.0
+                    )
                 )
                 wind = (
                     h.wind_speed_10m[offset]
@@ -119,7 +125,7 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
             lon_grid = f"{request.location.lng:.3f}"
             location_identifier = f"{lat_grid}_{lon_grid}"
 
-        summary_key = f"weather_summary:{location_identifier}:{fingerprint}"
+        summary_key = f"weather_summary_v3:{location_identifier}:{fingerprint}"
 
         # Acquire lock and check cache
         summary_lock = await lock_manager.get_lock(summary_key)
@@ -136,18 +142,37 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                 logger.info("Weather Summary Cache MISS")
                 logger.info("Lock acquired for weather summary generation")
 
+                if is_no_rain:
+                    rain_decision_instruction = (
+                        "- CRITICAL RAINFALL RULE: Precipitation probability is 0% and precipitation is 0.0 mm. "
+                        "There are NO chances of rain in the next 24 hours. State that conditions are dry or that "
+                        "there are no chances of rain. Absolutely DO NOT mention rain, showers, spells of rainfall, "
+                        "drizzle, or downpours. Focus on peak temperature, wind conditions, and sky cover.\n"
+                    )
+                else:
+                    rain_decision_instruction = (
+                        "- If significant rain is expected (precip prob high or precip > ~2 mm), focus on rainfall timing and intensity "
+                        "(light/moderate/heavy downpour) and DE-EMPHASIZE temperature, since rain suppresses peak heat.\n"
+                    )
+
                 prompt = (
                     f"You are a professional weather assistant. Generate a crisp, actionable weather summary of exactly one to two sentences "
                     f"for the NEXT 24 HOURS in {location_name}, {state_name}.\n\n"
-                    f"Facts to use:\n"
+                    + (
+                        "CRITICAL ALERT: THE FORECAST IS COMPLETELY DRY. ZERO RAIN IS EXPECTED (0.0 mm, 0% prob). "
+                        "DO NOT MENTION RAIN, SHOWERS, OR SPELLS OF RAINFALL.\n\n"
+                        if is_no_rain
+                        else ""
+                    )
+                    + f"Facts to use:\n"
                     f"- Current Temperature: {current_temp:.1f}°C\n"
                     f"- Current Weather Condition: {current_condition}\n"
                     f"- Current Relative Humidity: {humidity:.0f}%\n"
                     f"- Current Wind: {wind_speed:.1f} km/h (gusts up to {wind_gusts:.1f} km/h)\n"
                     f"- Next 24 Hours Minimum Temperature: {min_temp_24h:.1f}°C\n"
                     f"- Next 24 Hours Maximum Temperature: {max_temp_24h:.1f}°C\n"
-                    f"- Next 24 Hours Maximum Probability of Precipitation: {max_precip_prob:.0f}%\n"
-                    f"- Expected precipitation for the first day: {precip_today:.1f} mm\n"
+                    f"- Next 24 Hours Maximum Probability of Precipitation: {'0% (Completely dry)' if is_no_rain else f'{max_precip_prob:.0f}%'}\n"
+                    f"- Expected precipitation for the first day: {'0.0 mm (No chances of rain)' if is_no_rain else f'{precip_today:.1f} mm'}\n"
                     f"- Next 24 Hours Maximum Wind Speed: {max_wind_speed:.1f} km/h\n\n"
                     f"Hourly forecast timeline over the next 24 hours:\n"
                     f"{timeline_str}\n\n"
@@ -158,7 +183,7 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                     f"4. Do NOT list every fact. Mention only what is notable or actionable. Skip mild, unremarkable conditions.\n"
                     f"5. No filler ('will experience', 'featuring'). Write direct, punchy statements.\n\n"
                     f"DECISION LOGIC (pick the dominant hazard; don't dilute the summary by covering everything):\n"
-                    f"- If significant rain is expected (precip prob high or precip > ~2 mm), focus on rainfall timing and intensity (light/moderate/heavy downpour) and DE-EMPHASIZE temperature, since rain suppresses peak heat.\n"
+                    f"{rain_decision_instruction}"
                     f"- If it is a hot, dry day (max temp high, low precip prob), focus on peak temperature, when it hits, and heat-stress caution; mention UV if it maps to a clear-sky midday window.\n"
                     f"- If winds/gusts are strong (high max wind or gusts), call out the windy interval as the headline instead.\n"
                     f"- If humidity is high AND temperature is high, flag the 'feels hotter / muggy' discomfort rather than the raw number.\n"
@@ -166,7 +191,6 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                     f"- Only mention UV index when skies are clear/mostly clear during daylight (UV is irrelevant under heavy cloud or at night).\n"
                     f"- If a sharp transition occurs (e.g. clear → thunderstorm), lead with the transition and its onset time.\n"
                     f"- Never warn about heat and heavy rain in the same breath as if both peak together; choose the one the data supports.\n"
-                    f"{no_rain_override}"
                 )
 
                 primary = get_primary_provider()
@@ -194,6 +218,45 @@ async def generate_weather_summary(request: AIAdvisoryRequest):
                     )
 
                 weather_summary_text = raw.strip()
+
+                # Guardrail: Check for hallucinated rain on rain-free days
+                if is_no_rain:
+                    check_text = weather_summary_text
+                    check_text = re.sub(
+                        r'(?i)\b(?:no|zero)\s+(?:chances?\s+of\s+)?rain(?:fall)?(?:\s+(?:is\s+)?expected)?\b',
+                        '',
+                        check_text,
+                    )
+                    check_text = re.sub(r'(?i)\bwithout\s+rain(?:fall)?\b', '', check_text)
+                    check_text = re.sub(r'(?i)\bfree\s+of\s+rain(?:fall)?\b', '', check_text)
+                    check_text = re.sub(r'(?i)\bdry\s+conditions?\b', '', check_text)
+                    check_text = re.sub(r'(?i)\bno\s+rain\b', '', check_text)
+
+                    if re.search(
+                        r'\b(?:spell\s+of\s+rainfall|spell\s+of\s+rain|showers?|rainfall|rain|downpour|drizzle)\b',
+                        check_text,
+                        re.IGNORECASE,
+                    ):
+                        logger.warning(
+                            f"Hallucinated rain detected in weather summary ('{weather_summary_text}') on a zero-rain day. "
+                            f"Replacing with deterministic dry weather summary."
+                        )
+                        if max_wind_speed >= 25.0:
+                            weather_summary_text = (
+                                f"Expect dry conditions in {location_name} over the next 24 hours with breezy winds reaching {max_wind_speed:.1f} km/h "
+                                f"and daytime temperatures peaking near {max_temp_24h:.1f}°C. There are no chances of rain."
+                            )
+                        elif max_temp_24h >= 35.0:
+                            weather_summary_text = (
+                                f"Hot and dry weather will continue in {location_name} over the next 24 hours, with temperatures peaking around "
+                                f"{max_temp_24h:.1f}°C in the afternoon. There are no chances of rain."
+                            )
+                        else:
+                            weather_summary_text = (
+                                f"Expect dry and clear conditions in {location_name} over the next 24 hours, with temperatures ranging from "
+                                f"{min_temp_24h:.1f}°C to {max_temp_24h:.1f}°C. There are no chances of rain."
+                            )
+
                 # Cache English version
                 cache_manager.set(
                     summary_key,
